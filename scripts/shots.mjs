@@ -31,7 +31,8 @@
  *   --scale 0.5             render scale (0.5 = half size; 1 to judge detail)
  *   --png                   lossless PNG stills (to read exact pixels)
  *   --quality 88            JPEG quality
- *   --clean                 no dev overlay (default: overlay on, drawn in the letterbox bars)
+ *   --clean                 no dev overlay (default: overlay on, drawn in the letterbox bars, or
+ *                           over the top and bottom 34 px of picture when letterbox is 0)
  *   --bare                  picture only: no overlay, no grain, no letterbox
  *   --through               section target only: a test-card neighbour that owns a
  *                           transition with this section draws this section live,
@@ -148,7 +149,18 @@ const gl = args.gl || "angle";
 // ---- which frames --------------------------------------------------------------
 const frames = new Set();
 const clampF = (f) => Math.min(TOTAL - 1, Math.max(0, f));
-const addT = (t) => frames.add(clampF(F(t)));
+// A time or frame the user typed that lies outside the film is clamped to the first or last
+// frame; say so, because the file name alone is easy to miss.
+const outside = new Map();
+const checkAsked = (f, flag) => {
+  if (f > TOTAL - 1) outside.set(flag, `past the end (${((TOTAL - 1) / FPS).toFixed(2)} s); rendered f${TOTAL - 1}`);
+  else if (f < 0) outside.set(flag, "before the start; rendered f0");
+};
+const addT = (t, flag) => {
+  const f = F(t);
+  if (flag) checkAsked(f, flag);
+  frames.add(clampF(f));
+};
 const list = (v) => String(v).split(",").map((x) => x.trim()).filter(Boolean);
 const pair = (v, name) => {
   const p = String(v).split(":").map(Number);
@@ -164,16 +176,23 @@ function renderRangeOf(s) {
   return { from: snapT(s.from) - fr(tin).pre, to: snapT(s.to) + fr(tout).post, tin, tout };
 }
 
-if (args.t) list(args.t).forEach(addT);
-if (args.f) list(args.f).forEach((f) => frames.add(clampF(Math.round(Number(f)))));
+if (args.t) list(args.t).forEach((t) => addT(t, `--t ${t}`));
+if (args.f)
+  list(args.f).forEach((f) => {
+    checkAsked(Math.round(Number(f)), `--f ${f}`);
+    frames.add(clampF(Math.round(Number(f))));
+  });
 if (args.range) {
   const [a, b, step = 0.5] = pair(args.range, "range");
   if (!(step > 0)) die("--range step must be above 0");
-  for (let t = a; t <= b + 1e-6; t += step) addT(t);
+  for (let t = a; t <= b + 1e-6; t += step) addT(t, `--range ${args.range}`);
 }
 if (args.seq) {
   const [a, b] = pair(args.seq, "seq");
-  for (let f = F(a); f <= F(b); f++) frames.add(clampF(f));
+  for (let f = F(a); f <= F(b); f++) {
+    checkAsked(f, `--seq ${args.seq}`);
+    frames.add(clampF(f));
+  }
 }
 if (args.boundaries) {
   const around = (f) => [-2, -1, 0, 1].forEach((d) => frames.add(clampF(f + d)));
@@ -197,6 +216,7 @@ if (args.all) {
   for (let t = r.from; t < r.to - 1e-9; t += step) addT(t);
 }
 const frameList = [...frames].filter((f) => f >= 0 && f < TOTAL).sort((a, b) => a - b);
+for (const [flag, why] of outside) console.warn(`warn: ${flag} is ${why}`);
 if (frameList.length === 0 && !args.bench) die("Nothing to render. Give --t, --f, --range, --seq, --boundaries, --all or --bench.");
 
 const pad = Math.max(4, String(TOTAL - 1).length);

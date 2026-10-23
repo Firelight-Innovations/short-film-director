@@ -7,7 +7,9 @@ Errors (exit 3), the contract every section, the animatic and the render rely on
     letterbox in [0, 0.5); safe fractions in (0, 1]
   - sections contiguous and in order, covering [0, dur) in whole frames after
     snapping (frame = round(t * fps)), none empty; ids like 00-name
-  - every id unique (sections, transitions, cues)
+  - every id unique (sections, transitions, cues); transition ids look like
+    t-00-01 (t-, then lower case letters, digits and dashes: t-start and t-end
+    pass), the form review-frames.mjs and review-boundaries.js accept
   - transitions join adjacent sections a then b at their boundary; owner is a
     or b; windows [at - pre, at + post) stay inside the two sections and do not
     overlap; t-start / t-end (no a or no b) have pre = post = 0
@@ -16,7 +18,7 @@ Errors (exit 3), the contract every section, the animatic and the render rely on
     quote cues carry a source; a `shown` window lies inside the render range too
   - checks.black ranges inside [0, dur]; audio.src exists under assets/
 Warnings (exit 0), things a person should look at:
-  - a time half a frame from any frame (it snaps to a frame nobody chose)
+  - a time more than a quarter of a frame from any frame (it snaps to a frame nobody chose)
   - a boundary without a transition row; a transition `beat` naming a mark the
     cut is not on
   - cue ids that are not role-based (stamp-1, data-3): content in an id goes
@@ -55,6 +57,7 @@ KNOWN_ROLES = {"stamp", "slam", "narration", "sub", "quote", "data", "thesis", "
 FACT_ROLES = {"data", "quote"}
 SECTION_ID = re.compile(r"^[0-9]{2}-[a-z0-9-]+$")
 SLUG = re.compile(r"^[a-z0-9][a-z0-9-]*$")
+TRANSITION_ID = re.compile(r"^t-[a-z0-9][a-z0-9-]*$")  # t-00-01, t-start, t-end
 HEX = re.compile(r"^#[0-9a-fA-F]{6}$")
 G4_COLUMNS = ["cue", "on screen", "source", "url", "published", "exact wording at source", "verdict", "as of",
               "re-verify by", "check a", "check b"]
@@ -184,7 +187,7 @@ def main() -> int:
             frac = abs(t * fps - round(t * fps))
             if frac > 0.25:
                 lo, hi = math.floor(t * fps), math.floor(t * fps) + 1
-                r.warn(f"{label} = {t} is {t * fps:.3f} frames, half a frame from any frame: write {lo / fps:.4f} or {hi / fps:.4f}")
+                r.warn(f"{label} = {t} is {t * fps:.3f} frames, more than a quarter of a frame from any frame: write {lo / fps:.4f} or {hi / fps:.4f}")
 
     # --- sections ----------------------------------------------------------------
     sections = tl.get("sections") or []
@@ -247,6 +250,9 @@ def main() -> int:
     for tr in trans:
         tid = tr.get("id")
         claim("transition", tid)
+        if isinstance(tid, str) and tid and not TRANSITION_ID.fullmatch(tid):
+            r.err(f"transition id {tid!r} must look like t-00-01 (t-, then lower case letters, digits and dashes): "
+                  "review-frames.mjs and the boundary review workflow only accept that form")
         at, pre, post = tr.get("at"), tr.get("pre", 0), tr.get("post", 0)
         if not (num(at) and num(pre) and num(post)) or pre < 0 or post < 0:
             r.err(f"transition {tid}: at, pre and post must be numbers, pre and post not negative")

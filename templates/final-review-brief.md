@@ -5,7 +5,8 @@ Do not add your own worries or what you fixed: the reviewer's value is that nobo
 what to expect. Delete this comment. -->
 
 One reviewer, fresh eyes, on the **finished file**. You look and write. You do not render,
-edit code, or touch git. Your one output is `docs/review/final.md` (in a second review,
+edit code, touch git, or install, download or publish anything (if you need something, say so
+in your file). Your one output is `docs/review/final.md` (in a second review,
 `docs/review/final-2.md`: see the end of this brief).
 
 You have not seen this film being made. That is the point: judge what a viewer gets.

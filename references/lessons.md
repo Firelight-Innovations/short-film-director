@@ -3,7 +3,8 @@
 Every gotcha met on *We Built a Mind* (Firelight Innovations, 2026-10-12), the first
 film made the way this skill directs films. Read this file when something breaks in a
 way that looks familiar, and before you change a tool or a rule: most tools and rules
-in this skill exist because of an entry below.
+in this skill exist because of an entry below. A few entries (L13, L45, L46, L82) are
+gotchas the first film did not meet; each says so.
 
 Each entry has four parts:
 
@@ -67,13 +68,14 @@ S0 to S7 are the first film's sections 00-hook to 07-outro; the map is in
   - [L38. A long frame list broke ffmpeg's expression parser](#l38-a-long-frame-list-broke-ffmpegs-expression-parser)
   - [L39. A comma inside a filter expression split the filter graph](#l39-a-comma-inside-a-filter-expression-split-the-filter-graph)
   - [L40. A tool held the whole film in memory](#l40-a-tool-held-the-whole-film-in-memory)
-- [Windows](#windows) (L41 to L46)
+- [Windows](#windows) (L41 to L46, and L82)
   - [L41. Python crashed reading timeline.json](#l41-python-crashed-reading-timelinejson)
   - [L42. The console could not print what the film says](#l42-the-console-could-not-print-what-the-film-says)
   - [L43. Tools that need bash](#l43-tools-that-need-bash)
   - [L44. A recursive delete can walk through a junction into assets/](#l44-a-recursive-delete-can-walk-through-a-junction-into-assets)
   - [L45. Inline JSON props fail on Windows](#l45-inline-json-props-fail-on-windows)
   - [L46. A generated ffmpeg command over 8192 characters](#l46-a-generated-ffmpeg-command-over-8192-characters)
+  - [L82. A deep project folder made every render fail](#l82-a-deep-project-folder-made-every-render-fail)
 - [Agents in one tree](#agents-in-one-tree) (L47 to L53)
   - [L47. Pipeline bugs were found by builders, not by the lead](#l47-pipeline-bugs-were-found-by-builders-not-by-the-lead)
   - [L48. Requests to lead stayed open at the end](#l48-requests-to-lead-stayed-open-at-the-end)
@@ -194,8 +196,8 @@ S0 to S7 are the first film's sections 00-hook to 07-outro; the map is in
 - **Fix.** A 120 s timeout per still, and a note to watch that frame in the final render
   (it rendered fine).
 - **Now.** `shots.mjs --timeout <s>` turns a hang into an error. Run `npx remotion browser
-  ensure` before the first render (SKILL.md, Phase 0): Remotion traces most stalled
-  renders to a browser mismatch [3].
+  ensure` before the first render (SKILL.md, Phase 0; it downloads Chromium, so the user
+  says yes first): Remotion traces most stalled renders to a browser mismatch [3].
 
 ### L8. A Three.js canvas ignored the film clock
 
@@ -278,9 +280,9 @@ S0 to S7 are the first film's sections 00-hook to 07-outro; the map is in
   the wrong side of the boundary.
 - **Fix.** Snap every time to its frame when the timeline loads, compare whole frames in
   every lookup, and do the same in the grain schedule.
-- **Now.** The kit snaps every time it reads at load. `check-timeline.py` requires
-  frame-aligned boundaries. `black-check.py` fails if a frame in `checks.black` is not
-  black.
+- **Now.** The kit snaps every time it reads at load. `check-timeline.py` expects
+  frame-aligned times (it warns when one is more than a quarter of a frame off).
+  `black-check.py` fails if a frame in `checks.black` is not black.
 
 ### L15. A literal in a section fired one frame late
 
@@ -449,8 +451,10 @@ S0 to S7 are the first film's sections 00-hook to 07-outro; the map is in
 - **Cause.** Baked image sequences.
 - **Fix.** Scripts regenerate them; `work/` and `out/` were never committed.
 - **Now.** Chains make every baked asset rebuildable. Decide commit-or-rebuild in Phase 4
-  and keep it in the report's Requests-to-lead queue with an owner
-  (`templates/report.md`).
+  (`references/07-final-and-delivery.md`, section 11: commit large plates, or ignore them
+  and record the rebuild command) and keep it in the report's Requests-to-lead queue with
+  an owner (`templates/report.md`). Media whose licence does not allow a copy stays out
+  of git (SKILL.md, Phase 6, step 6).
 
 ---
 
@@ -634,6 +638,21 @@ S0 to S7 are the first film's sections 00-hook to 07-outro; the map is in
 - **Now.** The template has one `AudioTrack`. A voice-over film with many clips will meet
   this; plan its audio as few tracks.
 
+### L82. A deep project folder made every render fail
+
+- **Symptom.** Not met on the first film; met while testing this skill on Windows. Every
+  render, still and animatic failed with an `ENOENT` spawn error. The error never
+  mentions the path length.
+- **Cause.** Remotion keeps its headless Chrome inside the project, under
+  `node_modules/.remotion/`. The path of its executable adds 105 characters to the project
+  path (call it about 110). Windows stops most programs at 260 characters, so a project
+  path over about 150 fails. In the test, a 163-character project path gave a
+  268-character Chrome path.
+- **Fix.** Move the film to a short path, for example `C:\films\<slug>`, or scaffold it
+  there.
+- **Now.** SKILL.md, Phase 0 says to keep the path short, and `new-film.mjs` repeats it.
+  `doctor.py` fails on Windows when the project path plus 110 characters passes 259.
+
 ---
 
 ## Agents in one tree
@@ -712,7 +731,8 @@ S0 to S7 are the first film's sections 00-hook to 07-outro; the map is in
 - **Cause.** The tool set was decided during the run.
 - **Fix.** The improvised tracker worked; Three.js stayed the baseline for 3D.
 - **Now.** Decide the tool set at intake (SKILL.md, Phase 0) and say in each builder
-  brief what is installed. Builders do not install (crew rules).
+  brief what is installed. Builders do not install (crew rules), and the lead installs
+  nothing without the user's yes (SKILL.md, rule 11).
 
 ---
 
@@ -945,9 +965,10 @@ S0 to S7 are the first film's sections 00-hook to 07-outro; the map is in
   but its id `stamp-1962` stayed, so the id and the text disagreed.
 - **Cause.** The cue was written before the plate existed, and the id carried content.
 - **Fix.** Reword the cue to match the plate; rebuild the baked plates.
-- **Now.** Ids are role-based (`stamp-1`, `slam-2`, `data-3`), never content. Give a dated
-  or period claim a row in `facts.md` even when its role is `stamp`, and check generated
-  stills against their captions.
+- **Now.** Ids are role-based (`stamp-1`, `slam-2`, `data-3`), never content, and
+  `check-timeline.py` warns on a cue id that is not. Give a dated or period claim a row in
+  `facts.md` even when its role is `stamp`, and check generated stills against their
+  captions.
 
 ### L74. Rights were left to the end
 
@@ -986,6 +1007,9 @@ S0 to S7 are the first film's sections 00-hook to 07-outro; the map is in
 - **Cause.** The grade adds contrast after the section's own check.
 - **Fix.** Flash-check the graded file.
 - **Now.** SKILL.md, Phase 6, step 2: `flash-check.py out/<slug>-graded.mp4` must pass.
+  Its default area is the broadcast reading (a quarter of the screen); for web delivery
+  also run it with `--area 0.03` and judge each region that fails
+  (`references/safety-and-rights.md`, section 2).
 
 ---
 
@@ -1007,8 +1031,8 @@ S0 to S7 are the first film's sections 00-hook to 07-outro; the map is in
   as the 3D and baked sections.
 - **Cause.** One model for every builder.
 - **Fix.** None.
-- **Now.** Route simple sections to a cheaper model (SKILL.md, rule 10;
-  `references/05-build.md`).
+- **Now.** Route simple sections to a mid model (`references/05-build.md`, section 5;
+  SKILL.md, rule 10).
 
 ### L79. Cheap research was fine for technique, not for facts
 
@@ -1018,7 +1042,7 @@ S0 to S7 are the first film's sections 00-hook to 07-outro; the map is in
 - **Cause.** Facts need depth and primary sources; a technique brief does not.
 - **Fix.** The lead re-checked against primary sources.
 - **Now.** A cheap model for `research.js`; facts through `fact-check.js` (two checkers
-  and a reconciler).
+  and a reconciler, on a mid model; SKILL.md, rule 10).
 
 ### L80. The render stayed fast because heavy work was pre-rendered
 
@@ -1075,10 +1099,11 @@ with where this skill now makes it: **Done**, **Partly** (what is still missing)
    `--timeout`, unique default sheet names for `--all` and `--boundaries`, a unique
    bundle per process (L1, L3, L4, L5, L7).
 9. **One `doctor` command before any render.** Partly: `doctor.py` checks the timeline,
-   chain freshness, vendored fonts, `staticFile()` paths, registry against timeline,
-   `beats.json` and the pinned Remotion version. It does not check for empty frames in a
-   render range or compare cue windows with what is drawn: use `shots.mjs <id> --all 1`
-   and `shown` (L18).
+   chain freshness, vendored fonts, `staticFile()` paths, registry against timeline (it
+   fails until Phase 4 gives every section a stub), `beats.json`, the pinned Remotion
+   version, the Python modules and, on Windows, the project path length (L82). It does
+   not check for empty frames in a render range or compare cue windows with what is
+   drawn: use `shots.mjs <id> --all 1` and `shown` (L18).
 10. **Separate "readable by" from "drawn".** Partly: cues take `shown`, and
     `check-timeline.py` reports a `shown` outside its render range. No script compares
     `shown` with the pixels (L18).
@@ -1093,7 +1118,8 @@ with where this skill now makes it: **Done**, **Partly** (what is still missing)
 15. **Worktrees or staggered renders for parallel builders.** Partly: private bundles,
     per-still timeouts and the 180 s font limit; builders still share one working tree,
     and nothing caps concurrent Chrome tabs (L49).
-16. **No content in ids.** Done as a rule: role-based ids (L73). Nothing enforces it.
+16. **No content in ids.** Done: role-based ids (L73), and `check-timeline.py` warns on a
+    cue id that is not role-based.
 17. **Provenance as a script.** Done: `log-asset.py` appends to `docs/rights.md` (L48).
 18. **Requests to lead as a queue.** Done: owner and status for each request in
     `templates/report.md` (L48).

@@ -7,7 +7,9 @@
  * card in its palette (src/kit/placeholder.tsx), so a new section in the
  * timeline renders at once. Before the builders launch, give every section a
  * stub and register it (references/05-build.md section 3): builders do not edit
- * this file, and Solo renders a section for real only when it is here. Remove
+ * this file, and Solo renders a section for real only when it is here. A stub is
+ * `import { makePlaceholder } from "../../kit";` and
+ * `export const Section = makePlaceholder("<id>");` in src/sections/<id>/index.tsx. Remove
  * an entry when its section leaves the timeline (`python scripts/doctor.py`
  * checks both ways).
  */

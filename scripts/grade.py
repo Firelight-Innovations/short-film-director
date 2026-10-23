@@ -146,7 +146,8 @@ def main() -> int:
           f"{o.get('color_space')}/{o.get('color_primaries')}/{o.get('color_transfer')}, {o.get('nb_frames')} frames (input {v.get('nb_frames')})")
     if str(o.get("nb_frames")) != str(v.get("nb_frames")):
         print("WARN: the frame count changed")
-    print("next: python scripts/black-check.py " + out.as_posix() + " and python scripts/flash-check.py " + out.as_posix())
+    print("next: python scripts/black-check.py " + out.as_posix() + " and python scripts/flash-check.py " + out.as_posix()
+          + " (for web delivery also flash-check.py --area 0.03)")
     return 0
 
 

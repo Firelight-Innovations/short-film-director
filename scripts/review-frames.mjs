@@ -9,8 +9,9 @@
  *   frames/          every frame from <margin> frames before the window to <margin> after
  *                    it, at half size (a hard cut, which has no window: 30 before, 14 after)
  *   sheet-NN.jpg     those frames, 24 to a sheet (6 x 4, 480 px tiles), labelled f<frame>_t<sec>
- *   phone-NN.jpg     the same frames as 360 px tiles: the size an upright phone shows a
- *                    16:9 film. Read every word on these; type that fails here fails the post
+ *   phone-NN.jpg     the same frames as 360 px tiles: about the size an upright phone shows
+ *                    the frame, at its own aspect. Read every word on these; type that
+ *                    fails here fails the post
  *   full_f....jpg    the frames cut-1, cut and cut+1 at full size
  *   motion.csv/.png  the motion trace of frames/ from scripts/motion-check.py (frame-to-frame
  *                    change: freezes, jumps, one-frame pops), when that tool is present
@@ -92,7 +93,7 @@ for (const tr of tl.transitions ?? []) {
   });
 }
 // out/review/<id> is deleted and rebuilt, so an id is one safe path segment (the same form
-// check-timeline.py and the review workflow require).
+// scripts/workflows/review-boundaries.js requires; check-timeline.py checks only that ids are unique).
 const TID = /^t-[a-z0-9][a-z0-9-]*$/;
 const badIds = jobs.filter((j) => typeof j.id !== "string" || !TID.test(j.id)).map((j) => JSON.stringify(j.id));
 if (badIds.length) die(`transition id ${badIds.join(", ")} in data/timeline.json: use t- then lower-case letters, digits and hyphens (t-00-01)`);

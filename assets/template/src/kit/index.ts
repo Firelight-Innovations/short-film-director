@@ -45,3 +45,8 @@ export {
 export type { Cue, CueRole, SectionId, SectionPalette, SectionSpan, Timeline, Transition } from "../timeline/types";
 export { CANVAS, LETTERBOX_PX, PALETTE, SAFE, UNIT } from "../style/tokens";
 export type { Box } from "../style/tokens";
+/**
+ * A labelled test card in the section's palette. A section stub is
+ * `export const Section = makePlaceholder("<id>");` until the real one lands.
+ */
+export { makePlaceholder } from "./placeholder";

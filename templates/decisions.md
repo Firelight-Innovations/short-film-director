@@ -12,7 +12,8 @@ picks the film up from this file.
 What to log: every gate (signed off, and by whom); every lock lifted, and by whom; every change
 to timing or words after the animatic; every fact corrected or cut; model routing and the user's
 rules; every fan-out (what, how many, which model); every fix round and residual accepted; every
-measured check on a final file, with its numbers.
+measured check on a final file, with its numbers; every yes or no the user gave to an install, a
+download or anything public (quote their words, and say which class of files a yes covers).
 
 The form of a good line:
 

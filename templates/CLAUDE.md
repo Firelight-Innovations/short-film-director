@@ -21,8 +21,8 @@ one line in silence.*
 - **Remotion 4 (React 19, TypeScript)**, pinned in `package.json` (4.0.410). Three.js
   through `@remotion/three`, SVG filters, Canvas 2D where a section needs them. Chromium
   renders with `--gl=angle` on a machine with a GPU (`swangle` without one).
-- **Python** (numpy, scipy, OpenCV, Pillow, scikit-image, librosa) and **ffmpeg** for the
-  music analysis, pre-rendered plates and the final grade.
+- **Python** (numpy, scipy, OpenCV, Pillow, librosa; matplotlib is optional, for plots) and
+  **ffmpeg** for the music analysis, pre-rendered plates and the final grade.
 - Tools are cross-platform Python and Node in `scripts/`; each prints its usage with
   `--help`.
 
@@ -84,16 +84,24 @@ changing the data first, then `npm run check`.
 - **Every frame is a pure function of its frame number.** `rnd(seed)` only; no
   `Math.random`, no `Date`, no CSS animation, no state carried between frames.
 - **Flash safety.** At most three flashes in any one second, no saturated red fields.
-  Measure the graded file: `python scripts/flash-check.py out/__SLUG__-graded.mp4`.
+  Measure the graded file: `python scripts/flash-check.py out/__SLUG__-graded.mp4`; for web
+  delivery also run it with `--area 0.03` (the skill's `references/safety-and-rights.md`,
+  section 2).
 - **Dev overlay off for the final** (`data/props.final.json`); keep the toggle.
 - **Never commit** `work/`, `out/`, keys, tokens or `.env` files, or media whose licence does
   not allow it. Assume the repository may become public.
+- **Ask before installing, downloading or publishing.** Nothing is installed (`npm install`,
+  `npx remotion browser ensure`, pip, `npx skills`), downloaded (fonts, reference images,
+  footage) or made public (git push, posting, uploading, sharing a link) without the user's
+  yes. One yes can cover a named class; it is recorded in `docs/brief.md`. Builders never
+  do these: they ask the lead in their section log.
 - **Rebuild chains after changes.** A change to a section that bakes words into plates, or
   to a frame another section reuses, makes a chain stale: `python scripts/chain.py check`,
   then `python scripts/chain.py run <name>`; `python scripts/doctor.py` fails on a stale one.
-- **One owner per file.** The lead owns `src/kit/`, `src/timeline/`, `src/components/`,
-  `data/`, `scripts/` and the registry; each builder owns its `src/sections/<id>/`,
-  `assets/footage/<id>/`, `scripts/<id>/` and `docs/sections/<id>.md`.
+- **One owner per file.** The lead owns `src/kit/`, `src/timeline/`, `src/style/`,
+  `src/components/`, `data/`, `scripts/` and the registry; each builder owns its
+  `src/sections/<id>/`, `assets/footage/<id>/`, `scripts/<id>/`, `work/<id>/`,
+  `out/check/<id>/` and `docs/sections/<id>.md`.
 - **Rights.** Every file brought into `assets/` or `refs/img/` gets a line:
   `python scripts/log-asset.py "<file>: source, URL, licence, how processed"`.
 - **Log every call:** `python scripts/log-decision.py "who: what, and why"`.
@@ -104,7 +112,7 @@ changing the data first, then `npm run check`.
 |---|---|
 | `npm run studio` | Remotion Studio (dev overlay on) |
 | `npm run check` | typecheck and `check-timeline.py` |
-| `python scripts/doctor.py` | pre-render health check; run before every full render |
+| `python scripts/doctor.py` | pre-render health check; run before every full render of the Film (Phase 4 on); it fails the section registry until every section has a stub |
 | `python scripts/analyze_music.py assets/audio/<track>` | the track, measured, to `data/beats.json` |
 | `python scripts/snap.py` | boundaries against the measured events |
 | `npm run animatic` | the storyboard on the track, to `out/animatic.mp4` |

@@ -19,8 +19,9 @@ sources in all, each with what to take from it and a confidence mark.
 
 The storyboard's Part G (`03-storyboard.md`) lists every change; the main ones:
 
-- **Intake** checks the Remotion licence (free for a collaborating group of up to three
-  people), pins the version, and starts a rights register.
+- **Intake** checks the Remotion licence (free for individuals, non-profits, and a company
+  whose headcount plus any client that operates the project is three or fewer), pins the
+  version, and starts a rights register.
 - **Ideation** diverges (about eight one-liners) before it converges (three concepts and
   a wildcard), scored with a Pugh matrix against two datums.
 - **Words on screen** default to 150 words a minute or slower, 5/6 s to 7 s per text event,
@@ -44,4 +45,6 @@ The storyboard's Part G (`03-storyboard.md`) lists every change; the main ones:
 - Only the emotion weight (51 percent) of Murch's rule of six was seen in a source; the
   skill uses the order, not the other weights.
 - Remotion's LICENSE says "up to 3 employees" and its FAQ says "up to 3 people" and adds
-  collaborators; the skill takes the stricter reading.
+  collaborators. The first draft read that as the people on the film; the safety review
+  corrected it to the whole company's headcount plus any client that operates the
+  project, which is what the skill now says.

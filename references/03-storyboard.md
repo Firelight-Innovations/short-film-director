@@ -328,8 +328,10 @@ builders do not compensate for it twice.
 **Fonts.** Name each section's families (display, body, mono) and weights in the bible.
 The moment the bible names them, vendor the set before the first style frame and before
 the animatic renders: `node scripts/fetch-fonts.mjs "Family:400,700" ...` (the full rule is
-in `references/02-references.md`, section 10). Until a family is vendored the kit draws a
-system font and prints a warning, so a frame made earlier would show the wrong type.
+in `references/02-references.md`, section 10). The script downloads from Google Fonts, so
+run it only after the user's yes to downloads (`SKILL.md`, rule 11). Until a family is
+vendored the kit draws a system font and prints a warning, so a frame made earlier would
+show the wrong type.
 
 **One page per section**: the look and the clashing secondary look, if any; the job in one
 line; a shot table (shot, time, plate or source, what happens); the transitions in and
@@ -685,6 +687,8 @@ question credit logo caption vo`.
 
 - Sections are contiguous, ordered, cover `[0, dur)`, and every boundary is a whole frame.
 - Every id is unique; section ids match the pattern.
+- A transition id must be `t-` followed by lower case letters, digits and dashes
+  (`^t-[a-z0-9][a-z0-9-]*$`; `t-start` and `t-end` match). Any other id is an ERROR.
 - Every transition joins two adjacent sections (`a` then `b`), its `owner` is one of them,
   its window `[at - pre, at + post)` stays inside the two sections, and no two windows
   overlap. `t-start` and `t-end` have `pre = post = 0`.
@@ -696,10 +700,11 @@ question credit logo caption vo`.
 **Warnings** (exit 0, but read them):
 
 - a cue on screen for less than `0.4 s x words + 0.5 s` (never below 0.83 s; for `data`
-  and `quote` cues the `attribution` words count too), longer than 7 s, or on more than
-  two lines: the reading budget from `references/01-intake-and-ideation.md`;
-- a time half a frame from any frame, a cue id that is not role-based, an unknown role, a
-  palette colour that is not `#rrggbb`;
+  and `quote` cues the `attribution` words count too), longer than 7 s (`logo` and
+  `credit` cues are exempt from the 7 s maximum, so a held end card passes), or on more
+  than two lines: the reading budget from `references/01-intake-and-ideation.md`;
+- a time more than a quarter of a frame from any frame, a cue id that is not role-based,
+  an unknown role, a palette colour that is not `#rrggbb`;
 - a transition whose `beat` names a mark the cut is not on;
 - a `shown` window that starts after or ends before the readable window (the words would
   not be drawn while they should be read);

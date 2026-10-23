@@ -16,12 +16,18 @@ these checks take seconds and catch the faults that would waste both:
              forgives a wrong case; Linux and the cloud do not)
   registry   every id in src/sections/registry.ts is a section in the timeline, and
              every timeline section is registered (an unregistered one renders as a
-             test card)
-  music      data/beats.json exists when timeline.audio is set
+             test card). A fresh scaffold FAILs this, and node_modules, until Phase 4
+             gives every section a stub (SKILL.md) and npm install has run
+  music      data/beats.json exists when timeline.audio is set; WARN when beats.json
+             holds beats but timeline.audio is null (the film would render silent)
   remotion   the installed remotion and @remotion/* versions equal the pins in
              package.json (a drifted version changes defaults and output)
   props      data/props.final.json turns the dev overlay off
   ffmpeg     ffmpeg and ffprobe are on PATH (the grade and the checks need them)
+  path       Windows only: the project path is short enough for Remotion's headless
+             Chrome (the project path plus about 110 characters must stay under 260)
+  python     numpy, scipy, cv2, PIL and librosa import (matplotlib only WARNs: it
+             draws plots). doctor never installs anything
 
 --quick compares chain files by path and size instead of hashing their content.
 
@@ -208,13 +214,13 @@ def check_fonts() -> None:
             return
     elif used:
         report("FAIL", "fonts", "src/kit/fonts.manifest.json is missing but src/ calls font()",
-               ['fix: node scripts/fetch-fonts.mjs "Family:400,700"'])
+               ['fix: ask the user (it downloads from Google Fonts), then node scripts/fetch-fonts.mjs "Family:400,700"'])
         return
     families = {str(e.get("family")) for e in entries}
     problems = []
     for family, file, line in used:
         if family not in families:
-            problems.append(f'{file}:{line} font("{family}") is not vendored. fix: node scripts/fetch-fonts.mjs "{family}:400"')
+            problems.append(f'{file}:{line} font("{family}") is not vendored. fix: ask the user (it downloads), then node scripts/fetch-fonts.mjs "{family}:400"')
     for e in entries:
         rel = str(e.get("file", ""))
         if not rel:
@@ -288,19 +294,48 @@ def check_registry(tl: dict | None) -> None:
         if not any((folder / n).exists() for n in ("index.tsx", "index.ts")):
             details.append(f"{i}: src/sections/{i}/index.tsx is missing")
     if details:
-        report("FAIL", "registry", f"{len(registered)} registered, {len(timeline_ids)} in the timeline", details)
+        summary = f"{len(registered)} registered, {len(timeline_ids)} in the timeline"
+        if missing:
+            summary += " (expected until Phase 4 gives every section a stub; from then on a section without one is a fault)"
+        report("FAIL", "registry", summary, details)
     else:
         report("PASS", "registry", f"{len(registered)} section(s), registry and timeline agree")
+
+
+def beats_track(b) -> str | None:
+    """The track file data/beats.json says it was measured from, if it names one."""
+    for key in ("audio", "src", "source", "file", "track"):
+        v = b.get(key) if isinstance(b, dict) else None
+        if isinstance(v, dict):
+            v = v.get("src") or v.get("file") or v.get("path")
+        if isinstance(v, str) and v:
+            return v
+    return None
 
 
 def check_music(tl: dict | None) -> None:
     if tl is None:
         return
     audio = tl.get("audio")
-    if not audio:
-        report("PASS", "music", "no audio in the timeline")
-        return
     beats = ROOT / "data" / "beats.json"
+    if not audio:
+        # A measured track with no audio set renders a silent film, and every check still passes.
+        b = None
+        if beats.exists():
+            try:
+                b = read_json(beats)
+            except json.JSONDecodeError:
+                b = None
+        n = len(b.get("beats") or []) if isinstance(b, dict) and isinstance(b.get("beats"), list) else 0
+        if n:
+            track = beats_track(b)
+            leaf = Path(track).name if track else "<track>"
+            report("WARN", "music", f"data/beats.json holds {n} beats but timeline.audio is null: the film would render silent",
+                   [f'fix: set "audio" in data/timeline.json to {{ "src": "audio/{leaf}", "gain": 1, "duration": {b.get("duration", "<seconds>")} }}'
+                    " (or empty data/beats.json if the film is meant to be silent)"])
+        else:
+            report("PASS", "music", "no audio in the timeline")
+        return
     src = str(audio.get("src", ""))
     if not beats.exists():
         report("FAIL", "music", f"timeline.audio is {src} but data/beats.json is missing",
@@ -311,14 +346,7 @@ def check_music(tl: dict | None) -> None:
     except json.JSONDecodeError:
         report("FAIL", "music", "data/beats.json is not valid JSON")
         return
-    named = None
-    for key in ("audio", "src", "source", "file", "track"):
-        v = b.get(key) if isinstance(b, dict) else None
-        if isinstance(v, dict):
-            v = v.get("src") or v.get("file") or v.get("path")
-        if isinstance(v, str) and v:
-            named = v
-            break
+    named = beats_track(b)
     if named and Path(named).name.lower() != Path(src).name.lower():
         report("FAIL", "music", f"data/beats.json was measured from {Path(named).name}, the timeline plays {Path(src).name}",
                [f"fix: python scripts/analyze_music.py assets/{src}"])
@@ -338,19 +366,19 @@ def check_remotion() -> None:
         report("FAIL", "remotion", "package.json does not depend on remotion")
         return
     if not (ROOT / "node_modules").exists():
-        report("FAIL", "remotion", "node_modules is missing", ["fix: npm install"])
+        report("FAIL", "remotion", "node_modules is missing", ["fix: ask the user, then npm install (it downloads the packages)"])
         return
     problems, loose = [], []
     exact = re.compile(r"^\d+\.\d+\.\d+$")
     for name, spec in sorted(pinned.items()):
         meta = ROOT / "node_modules" / Path(*name.split("/")) / "package.json"
         if not meta.exists():
-            problems.append(f"{name} {spec} is not installed. fix: npm install")
+            problems.append(f"{name} {spec} is not installed. fix: ask the user, then npm install")
             continue
         have = read_json(meta).get("version", "?")
         if exact.match(spec):
             if have != spec:
-                problems.append(f"{name}: package.json pins {spec}, installed {have}. fix: npm install")
+                problems.append(f"{name}: package.json pins {spec}, installed {have}. fix: ask the user, then npm install")
         else:
             loose.append(f"{name}: '{spec}' is not an exact pin (installed {have})")
     want = pinned["remotion"]
@@ -386,6 +414,69 @@ def check_ffmpeg() -> None:
         report("PASS", "ffmpeg", "ffmpeg and ffprobe on PATH")
 
 
+# Remotion's headless Chrome lives at <project>/node_modules/.remotion/chrome-headless-shell/win64/
+# chrome-headless-shell-win64/chrome-headless-shell.exe: about 104 characters under the project path.
+# Past 259 characters Windows cannot start it and every render fails with a bare ENOENT.
+CHROME_TAIL = 110
+WIN_MAX_PATH = 260
+
+
+def check_path() -> None:
+    if sys.platform != "win32":
+        return
+    n = len(str(ROOT))
+    if n + CHROME_TAIL > WIN_MAX_PATH - 1:
+        report("FAIL", "path", f"project path is {n} characters; Remotion's headless Chrome needs the whole project path "
+               f"plus about {CHROME_TAIL} characters under {WIN_MAX_PATH}",
+               [str(ROOT),
+                f"fix: move the film to a shorter path (for example {Path('C:/films') / ROOT.name}) and run npm install there. "
+                "Until then every render, still and animatic fails with 'spawn ... chrome-headless-shell.exe ENOENT'"])
+    else:
+        report("PASS", "path", f"project path is {n} characters (the limit is about {WIN_MAX_PATH - 1 - CHROME_TAIL})")
+
+
+# module -> pip package. A missing module in the first list fails; matplotlib only warns.
+PY_REQUIRED = [("numpy", "numpy"), ("scipy", "scipy"), ("cv2", "opencv-python"), ("PIL", "Pillow"), ("librosa", "librosa")]
+PY_OPTIONAL = [("matplotlib", "matplotlib")]
+PY_PROBE = (
+    "import importlib, json, sys\n"
+    "bad = {}\n"
+    "for m in sys.argv[1:]:\n"
+    "    try:\n"
+    "        importlib.import_module(m)\n"
+    "    except BaseException as e:\n"
+    "        bad[m] = (type(e).__name__ + ': ' + str(e))[:150]\n"
+    "print(json.dumps(bad))\n"
+)
+
+
+def check_python() -> None:
+    """Import the modules the tools need, in a child process (so a broken binary wheel cannot
+    take doctor down). Never installs anything: the fix line is for the user to approve."""
+    mods = [m for m, _ in PY_REQUIRED + PY_OPTIONAL]
+    env = dict(os.environ, PYTHONUTF8="1", PYTHONIOENCODING="utf-8")
+    try:
+        res = subprocess.run([sys.executable, "-c", PY_PROBE, *mods], cwd=ROOT, env=env, capture_output=True,
+                             text=True, encoding="utf-8", errors="replace", timeout=180)
+        bad = json.loads(res.stdout.strip().splitlines()[-1])
+    except (subprocess.TimeoutExpired, OSError, ValueError, IndexError) as e:
+        report("FAIL", "python", f"could not test the Python modules ({type(e).__name__})")
+        return
+    pip = dict(PY_REQUIRED + PY_OPTIONAL)
+    missing = [m for m, _ in PY_REQUIRED if m in bad]
+    if missing:
+        names = " ".join(pip[m] for m in missing)
+        report("FAIL", "python", f"cannot import: {', '.join(missing)} (the music, flash and sheet tools need them)",
+               [f"{m}: {bad[m]}" for m in missing] +
+               [f"fix: ask the user, then python -m pip install {names}  (doctor never installs anything)"])
+    elif any(m in bad for m, _ in PY_OPTIONAL):
+        report("WARN", "python", f"{', '.join(m for m, _ in PY_OPTIONAL if m in bad)} cannot be imported: plots are skipped",
+               [f"{m}: {bad[m]}" for m, _ in PY_OPTIONAL if m in bad] +
+               ["fix (optional): ask the user, then python -m pip install matplotlib"])
+    else:
+        report("PASS", "python", f"{', '.join(m for m, _ in PY_REQUIRED + PY_OPTIONAL)} import")
+
+
 def main() -> int:
     # A cue or a path with an accent must not crash a cp1252 console.
     for stream in (sys.stdout, sys.stderr):
@@ -405,6 +496,7 @@ def main() -> int:
             tl = read_json(tl_path)
         except json.JSONDecodeError:
             tl = None
+    check_path()
     check_timeline()
     check_chains(args.quick)
     check_fonts()
@@ -414,7 +506,8 @@ def main() -> int:
     check_remotion()
     check_props()
     check_ffmpeg()
-    fails = [n for s, n in RESULTS if s == "FAIL"]
+    check_python()
+    fails =[n for s, n in RESULTS if s == "FAIL"]
     if fails:
         print(f"FAIL: {len(fails)} of {len(RESULTS)} checks ({', '.join(fails)}). Fix them before a full render.")
         return 3

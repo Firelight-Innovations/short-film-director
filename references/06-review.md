@@ -133,7 +133,9 @@ it does not render, edit code or touch git. Its one output is
 section ids (`t-03-04` writes `transition-03-04.md`, `t-end` writes `transition-end.md`).
 
 Brief: `docs/boundary-review-brief.md` (from `templates/boundary-review-brief.md`). Fill
-its placeholders once for the film; the boundary is named in each reviewer's prompt.
+its placeholders once for the film, before the reviewers run: the workflow reads that copy,
+and a reviewer who finds it missing or still full of placeholders falls back to the bare
+template. The boundary is named in each reviewer's prompt.
 Model: mid (for example Sonnet), unless the user's rules say otherwise. Run a boundary when
 both of its sections have landed; on the first film six went first and two waited for the
 last section.
@@ -210,9 +212,10 @@ the frames it names, look at them, and write in your log what changed and which 
 it. Reply with the short final message from your brief and the paths of the after-frames." })
 ```
 
-**Under workflows**: `build-sections.js` with `fixes: { "<id>": "<path of the review file,
-or the findings as text>" }`. A fresh agent reads the section log, the brief and the
-findings, and fixes the smallest way.
+**Under workflows**: `build-sections.js` with `fixes: { "<id>": "<path of the review file, or
+findings as text>" | ["<review file 1>", "<review file 2>"] }` (a middle section has a review
+file per boundary: give all of them in one round). A fresh agent reads the section log, the
+brief and the findings, and fixes the smallest way.
 
 A finding that belongs to another section goes to that section's round. A finding that
 would move a handshake involves both sides: decide the new pixels, write them into
@@ -257,20 +260,22 @@ safety.
 
 | Tool | Command | What the numbers mean | Pass |
 |---|---|---|---|
-| flash-check | `python scripts/flash-check.py <mp4\|dir> [--from s] [--to s] [--fps n] [--area 0.25] [--max-flashes 3]` | A **transition** is a rise or fall of 10 percent or more of relative luminance, with the darker state below 0.80, over a quarter of the screen or more; the change accumulates over frames, so a three-frame fade counts like a cut. A **flash** is a pair of opposing transitions. **Worst second** is the most flashes in any one-second window. **Red** counts the same for saturated red (R/(R+G+B) at least 0.8). A saturated red field and a flashing run over five seconds are reported as warnings | exit 0: at most 3 general and 3 red flashes in any second [2] |
+| flash-check | `python scripts/flash-check.py <mp4\|dir> [--from s] [--to s] [--fps n] [--area 0.25] [--max-flashes 3]`; for web delivery also `--area 0.03` | A **transition** is a rise or fall of 10 percent or more of relative luminance, with the darker state below 0.80, over a quarter of the screen or more; the change accumulates over frames, so a three-frame fade counts like a cut. A **flash** is a pair of opposing transitions. **Worst second** is the most flashes in any one-second window. **Red** counts the same for saturated red (R/(R+G+B) at least 0.8). A saturated red field and a flashing run over five seconds are reported as warnings | exit 0: at most 3 general and 3 red flashes in any second [2]; a PASS at `--area 0.25` is the broadcast reading; for web delivery also run `--area 0.03` and judge each region that fails (safety-and-rights.md, section 2) |
 | black-check | `python scripts/black-check.py <mp4> [--tol 2] [--bar-tol 12]` | max luma of every frame in `checks.black` (naming the first that is not black) and of the last four frames when `lastFrameBlack`; max luma in the letterbox bars, leaving out the two rows that touch the picture. Luma is read full-range, so 0 is black. A frame is black at max 2 or less; a bar may reach 12 from encoder ringing | exit 0 |
 | motion-check | `python scripts/motion-check.py <mp4\|dir> [--from s --to s] [--sections]` | per-frame change (mean absolute difference of a 192 px grey copy, 0 to 255); freezes, jumps and pops by frame (section 2) | exit 0; 3 on a pop or a freeze inside motion |
 | sync-check | `python scripts/sync-check.py <mp4> [--sections]` | per section: distance in frames from each change peak to the nearest beat or onset, the share on the beat, the off-beat list | report only |
 | check-timeline | `python scripts/check-timeline.py` | the timeline's rules; errors for a cue or its `shown` window outside its section's render range; warnings for cues shorter than their reading time (0.4 s a word plus 0.5 s) | exit 3 on an error, 0 otherwise |
 | snap | `python scripts/snap.py [--tol 2]` | each boundary, transition, mark and cue start against the nearest measured event, in frames | exit 0 |
-| doctor | `python scripts/doctor.py [--quick]` | one line each: timeline, chains, fonts, assets (`staticFile` paths and board images, exact case), registry, music, Remotion pins, final props, ffmpeg | exit 0 (WARN lines do not fail) |
+| doctor | `python scripts/doctor.py [--quick]` | one line each: timeline, chains, fonts, assets (`staticFile` paths and board images, exact case), registry (fails until every section has a stub), music (and a WARN when `beats.json` has beats but `timeline.audio` is null), Remotion pins, final props, ffmpeg, project path length (Windows), Python modules. It never installs anything | exit 0 (WARN lines do not fail) |
 
 Notes:
 
-- flash-check approximates WCAG 2.3.1 [2] on downsampled frames. It is a screening tool,
-  not a certified analyser, and it ignores viewing distance. Also avoid long flashing
-  sequences (over about five seconds) even when each second is under the limit. The first
-  film measured 29 transitions, 8 flashes and a worst second of 2 on its graded file.
+- flash-check uses the flash definitions of WCAG 2.3.1 and ITU-R BT.1702 [2] on downsampled
+  frames. Its default area (`--area 0.25`, a quarter of the screen) is the broadcast
+  reading, so a PASS at the default is not a WCAG 2.3.1 claim; for web delivery also run
+  `--area 0.03` (safety-and-rights.md, section 2). It is a screening tool, not a certified
+  analyser, and it ignores viewing distance. Also avoid long flashing sequences (over about
+  five seconds) even when each second is under the limit. The first film measured 29 transitions, 8 flashes and a worst second of 2 on its graded file.
 - A flash count can change after the grade: contrast can push a transition that was just
   under a threshold over it. The numbers that count are on the graded file.
 - black-check on the first film: cut-to-black frames and the last frame at max luma 0; the

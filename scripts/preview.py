@@ -1,10 +1,12 @@
 """A small copy of the finished film for phones and chat: two-pass H.264 to a size, then checked.
 
-    python scripts/preview.py [<in.mp4> <out.mp4>] [--max-mib 28] [--height 720] [--audio-kbps 128]
+    python scripts/preview.py [<in.mp4> <out.mp4>] [--max-mib 28] [--height N] [--audio-kbps 128]
 
 Defaults: out/<slug>-graded.mp4 -> out/<slug>-preview.mp4 (slug from
-data/timeline.json). The picture is scaled to --height lines (never up; for a
-9:16 film pass --height 1280 to get 720 x 1280), audio is AAC at --audio-kbps.
+data/timeline.json). The picture is scaled so its SHORT side is 720 px, never up:
+16:9 gives 1280 x 720, 9:16 gives 720 x 1280, 1:1 gives 720 x 720. --height N is
+an explicit override: the picture is N lines high (never up), whatever its shape.
+Audio is AAC at --audio-kbps.
 The video bitrate is what fits --max-mib after the audio and a 4 percent
 margin for the container, but never more than the input's own video bitrate
 (a short film would otherwise come out larger than its master), and a two-pass
@@ -54,8 +56,22 @@ def probe(path: Path) -> dict:
             "audio": any(s.get("codec_type") == "audio" for s in streams), "vkbps": max(0, vbr) // 1000}
 
 
-def encode(inp: Path, out: Path, kbps: int, height: int, audio_kbps: int, has_audio: bool, logdir: Path) -> bool:
-    vf = f"scale=-2:{height}:flags=lanczos,format=yuv420p"
+SHORT_SIDE = 720
+
+
+def scale_for(w: int, h: int, height: int | None) -> tuple[str, str]:
+    """(ffmpeg scale filter, words for the log). No --height: the short side is SHORT_SIDE, never up."""
+    if height:
+        n = min(height, h)
+        n -= n % 2
+        return f"scale=-2:{n}", f"height {n}"
+    n = min(SHORT_SIDE, min(w, h))
+    n -= n % 2
+    return (f"scale=-2:{n}" if w >= h else f"scale={n}:-2"), f"short side {n}"
+
+
+def encode(inp: Path, out: Path, kbps: int, scale: str, audio_kbps: int, has_audio: bool, logdir: Path) -> bool:
+    vf = f"{scale}:flags=lanczos,format=yuv420p"
     common = ["-c:v", "libx264", "-preset", "slow", "-b:v", f"{kbps}k", "-maxrate", f"{int(kbps * 1.5)}k", "-bufsize", f"{kbps * 2}k",
               "-pix_fmt", "yuv420p", "-color_range", "tv", "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709",
               "-passlogfile", str(logdir / "x264")]
@@ -74,7 +90,9 @@ def main() -> int:
     ap.add_argument("inp", nargs="?", help="the graded film (default out/<slug>-graded.mp4)")
     ap.add_argument("out", nargs="?", help="the preview (default out/<slug>-preview.mp4)")
     ap.add_argument("--max-mib", type=float, default=28, help="largest file size in MiB (default 28)")
-    ap.add_argument("--height", type=int, default=720, help="picture height in lines, never scaled up (default 720)")
+    ap.add_argument("--height", type=int, default=None,
+                    help="explicit override: picture height in lines, never scaled up (default: none; the SHORT side is 720 px, "
+                         "so 16:9 gives 1280x720 and 9:16 gives 720x1280)")
     ap.add_argument("--audio-kbps", type=int, default=128, help="AAC bitrate (default 128)")
     a = ap.parse_args()
     slug = "film"
@@ -91,8 +109,7 @@ def main() -> int:
     except FileNotFoundError:
         print("preview: ffprobe not found on PATH")
         return 1
-    height = min(a.height, info["h"])
-    height -= height % 2
+    scale, size_note = scale_for(info["w"], info["h"], a.height)
     dur = info["duration"]
     budget_bits = a.max_mib * MIB * 8 * 0.96
     audio_bits = (a.audio_kbps * 1000 * dur) if info["audio"] else 0
@@ -104,13 +121,13 @@ def main() -> int:
     if capped:
         kbps = max(150, info["vkbps"])  # more bits than the master has buy nothing
     out.parent.mkdir(parents=True, exist_ok=True)
-    print(f"preview: {inp.as_posix()} ({info['w']}x{info['h']}, {dur:.2f} s) -> {out.as_posix()}, height {height}, "
+    print(f"preview: {inp.as_posix()} ({info['w']}x{info['h']}, {dur:.2f} s) -> {out.as_posix()}, {size_note}, "
           f"target {a.max_mib:g} MiB: video {kbps} kb/s" + (" (the input's own video bitrate)" if capped else "")
           + (f" + audio {a.audio_kbps} kb/s" if info["audio"] else ", no audio"))
     with tempfile.TemporaryDirectory(prefix="preview-") as tmp:
         for attempt in range(3):
             try:
-                ok = encode(inp, out, kbps, height, a.audio_kbps, info["audio"], Path(tmp))
+                ok = encode(inp, out, kbps, scale, a.audio_kbps, info["audio"], Path(tmp))
             except FileNotFoundError:
                 print("preview: ffmpeg not found on PATH")
                 return 1

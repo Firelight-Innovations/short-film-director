@@ -127,6 +127,12 @@ flash threshold, and only the graded file shows whether the grade stayed off the
 out of the bars. For a dense section, also check its span on its own with `--from` and
 `--to`. What the numbers mean: 06-review.md, section 10.
 
+**For web delivery** (LinkedIn, YouTube, a site) also run
+`python scripts/flash-check.py out/<slug>-graded.mp4 --area 0.03` and judge each region that
+fails (safety-and-rights.md, section 2). The default `--area 0.25` is the broadcast reading, so
+a PASS there is not a WCAG 2.3.1 claim and not enough to call a web film flash-safe. Record
+both results in the report.
+
 - flash-check FAIL: find the flashes it lists, open the frames, and fix the section (level the
   plates, tear a hard cut over several frames, slow the cutting). Lowering the grade's contrast
   fixes only a transition the grade itself pushed over.
@@ -147,7 +153,8 @@ fault in lessons.md L67 was a card that sat unchanged while a stronger frame cam
 On a loop, also check the seam from the last frame to the first (section 12).
 
 Log the numbers: `python scripts/log-decision.py "lead: final render <time>, grade <time>;
-flash-check PASS (<n> transitions, <n> flashes, worst second <n>); black-check PASS (<...>)"`.
+flash-check PASS (<n> transitions, <n> flashes, worst second <n>; web, --area 0.03: <PASS / what
+was judged>); black-check PASS (<...>)"`.
 
 ## 5. Frames from the graded file: film-frames.py
 
@@ -308,7 +315,8 @@ honesty is what makes the next pass cheap.
 
 ## 11. Commit
 
-Commit everything except `out/` and `work/` (both gitignored by the template). Before you do:
+Commit everything the template does not ignore: `out/`, `work/` and `assets/audio/*` stay
+local, and so does any media whose licence does not allow a copy in the repo. Before you do:
 
 - `git status --porcelain` and read every path. No keys or tokens, nothing from `work/`.
 - Media whose licence does not allow redistribution stays out of git: a copyrighted track, a
@@ -317,7 +325,8 @@ Commit everything except `out/` and `work/` (both gitignored by the template). B
 - Large plates that scripts can regenerate: commit them, or ignore them and record the
   rebuild command. Decide, log it, and say which in the report.
 
-Then commit with a message that says what the film is and its state.
+Then commit with a message that says what the film is and its state. The commit is local.
+Do not push, upload or share a link until the user says yes (SKILL.md rule 11).
 
 ## 12. Deliverables and platform checks
 
@@ -325,14 +334,16 @@ Then commit with a message that says what the film is and its state.
 2. **A preview** small enough for chat and phones:
 
    ```
-   python scripts/preview.py out/<slug>-graded.mp4 out/<slug>-preview.mp4 --max-mib 28 [--height 720]
+   python scripts/preview.py out/<slug>-graded.mp4 out/<slug>-preview.mp4 --max-mib 28 [--height N]
    ```
 
    Two-pass H.264 to a size, then measured and re-encoded smaller if it is still over (exit 3
    if it never fits). With no file arguments it reads `out/<slug>-graded.mp4` and writes
-   `out/<slug>-preview.mp4`. `--height` is the number of lines: for a 9:16 film pass
-   `--height 1280` to get 720 x 1280. Set `--max-mib` under the limit of wherever the preview
-   will go (a chat attachment, a messenger); 28 is the default. The first film's 720p preview
+   `out/<slug>-preview.mp4`. By default the SHORT side is 720 px, so a 16:9 film comes out at
+   1280 x 720 and a 9:16 film at 720 x 1280. You do not need a flag for either. `--height N`
+   is an explicit override: it sets the picture height in lines, and it never scales up. Set
+   `--max-mib` under the limit of wherever the preview will go (a chat attachment, a
+   messenger); 28 is the default. The first film's 720p preview
    was 22 MB for two minutes. The preview is for watching, not for posting.
 3. **A cover frame**, `out/<slug>-cover.png`: one still at the film's `w` x `h`, read out of
    the graded file, for the platforms that show a poster before play or let you pick one.
@@ -416,12 +427,17 @@ Say these plainly, in the report and in your last message. Details:
   re-check them on the day of posting.
 - **AI disclosure.** What in the film is generated, and the platform's rules for labelling
   AI-generated or altered media.
-- **Flash safety.** Measured on the graded file with a screening tool, not certified.
+- **Flash safety.** Measured on the graded file with a screening tool, not certified. The
+  default check is the broadcast reading; for web delivery the `--area 0.03` result is
+  reported too (section 4).
 - **The platform.** Its limits, crops, loudness handling and loop behaviour were not
   verified at build time; section 12 lists what to check on the posting day.
-- **Licences.** The Remotion licence answer recorded in the brief (free for up to three people
-  in the collaborating group; a company licence above that) [2]; codec patent licensing for
-  H.264 and AAC is the user's own responsibility [2]; the rights register's open items.
+- **Licences.** The Remotion licence answer recorded in the brief [2]. Remotion is free for
+  individuals, for non-profits, and for a for-profit company whose total headcount, plus any
+  client or studio that operates or co-develops the project, is 3 or fewer. Count whole
+  companies, not only the people on the film. A client that only receives the mp4 does not
+  count. Four or more combined need a Company License. Codec patent licensing for H.264 and
+  AAC is the user's own responsibility [2]; the rights register's open items.
 
 ## 15. Sources
 

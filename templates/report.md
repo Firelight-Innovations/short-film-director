@@ -79,6 +79,7 @@ All measured on `out/__SLUG__-graded.mp4`, the <first / second> render.
 | Health | `python scripts/doctor.py` | <exit 0> |
 | Chains | `python scripts/chain.py check` | <all fresh> |
 | Flash safety, whole film | `python scripts/flash-check.py <mp4>` | <PASS: n transitions, n flashes, worst second n of 3, no saturated red> |
+| Flash safety, web delivery | same, `--area 0.03` (for web delivery; judge each region that fails: `references/safety-and-rights.md`, section 2) | <PASS, or each region that failed and the call on it; or: not a web film> |
 | Flash safety, <dense span> | same, `--from <s> --to <s>` | <...> |
 | Black | `python scripts/black-check.py <mp4>` | <frames a to b max luma n; last frame max luma n; bars max luma n> |
 | Motion | `python scripts/motion-check.py out/pass1.mp4 --sections` | <freezes, pops: none, or which and why accepted> |
@@ -123,7 +124,7 @@ The state of `docs/rights.md` at delivery. Every item is `cleared`, `own work`, 
 | <person> | likeness or quote | <...> | <...> | <section, frames> | <...> |
 | <generated images> | generated media | <tool> | <terms> | <sections> | <disclosed on screen: yes / no> |
 | <fonts> | fonts | <foundries> | <OFL / Apache> | all | cleared |
-| Remotion | software | Remotion | <free (up to 3 people) / company licence> | render | <recorded in the brief> |
+| Remotion | software | Remotion | <free: individual, non-profit, or a company plus any client or studio that runs the project at 3 or fewer in total / Company License> | render | <recorded in the brief> |
 
 ## The sound gate
 
@@ -163,9 +164,13 @@ The user decides these; nothing in the build settles them.
 3. **Facts to re-verify on the day:** <cue ids, figures, their re-verify-by dates in
    `docs/research/facts.md`>.
 4. **AI disclosure:** <what is generated; what the film says on screen; the platform's label>.
-5. **Licences:** <the Remotion licence answer; codec patents for H.264 and AAC are the user's
-   responsibility; open rights items>.
-6. **Flash safety:** measured on the graded file with a screening tool, not certified.
+5. **Licences:** <the Remotion licence answer: free for individuals, for non-profits, and for a
+   for-profit company whose total headcount, plus any client or studio that operates or
+   co-develops the project, is 3 or fewer (count whole companies; a client that only receives
+   the mp4 does not count); 4 or more combined need a Company License. Codec patents for H.264
+   and AAC are the user's responsibility; open rights items>.
+6. **Flash safety:** measured on the graded file with a screening tool, not certified. The
+   default check is the broadcast reading; <for web delivery, the `--area 0.03` result above>.
 7. **The platform:** <delivery checks above: what was checked, what was not>.
 
 ## Known and accepted
@@ -185,10 +190,11 @@ npm run studio                                                 Remotion Studio, 
 node scripts/shots.mjs <section-id> --all 1 --sheet overview   one section, solo
 node scripts/shots.mjs film --f <frames>                       the integrated film
 node scripts/review-frames.mjs <t-id>                          every frame around a boundary
-python scripts/doctor.py                                       before any full render
+python scripts/doctor.py                                       before every full render of the Film
 npm run render:final                                           the ungraded master
 npm run grade                                                  the graded deliverable
 python scripts/flash-check.py out/__SLUG__-graded.mp4
+python scripts/flash-check.py out/__SLUG__-graded.mp4 --area 0.03   for web delivery: judge each region that fails
 python scripts/black-check.py out/__SLUG__-graded.mp4
 python scripts/film-frames.py out/__SLUG__-graded.mp4            frames for a review of the finished file
 ```

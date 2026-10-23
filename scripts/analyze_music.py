@@ -5,8 +5,10 @@
 
 <audio> defaults to assets/<audio.src> from data/timeline.json, and --fps to the
 timeline's fps (30 without a timeline). Writes data/beats.json (never hand-edit
-it; re-run this instead) and a plot, out/research/music.png. Run from the film
-project root. Deterministic: same file in, same numbers out.
+it; re-run this instead) and a plot, out/research/music.png. The plot needs
+matplotlib, which is optional: without it one line says so, the plot is skipped and
+the numbers are still written. Run from the film project root. Deterministic: same
+file in, same numbers out.
 
 What it measures (field names are the ones src/kit/music.ts and snap.py read):
   bpm, beat_period, beats, beat_strength     librosa's dynamic-programming beat tracker
@@ -117,7 +119,7 @@ def main() -> int:
     ap.add_argument("--beats-per-bar", type=int, default=4, help="beats in a bar, for the downbeats (default 4)")
     ap.add_argument("--plot", default="out/research/music.png", help="the plot (default out/research/music.png)")
     ap.add_argument("--zoom", type=float, default=0, help="also write music-<a>-<b>.png panels of this many seconds (default 0: none)")
-    ap.add_argument("--no-plot", action="store_true", help="skip the plots")
+    ap.add_argument("--no-plot", action="store_true", help="skip the plots (they are skipped anyway when matplotlib is not installed)")
     a = ap.parse_args()
 
     tl_path = Path("data/timeline.json")
@@ -422,11 +424,18 @@ def main() -> int:
 
     # --- plots -------------------------------------------------------------------
     plots = []
+    plot_note = ""
     if not a.no_plot:
-        import matplotlib
-        matplotlib.use("Agg")
-        import matplotlib.pyplot as plt
-
+        try:
+            import matplotlib
+            matplotlib.use("Agg")
+            import matplotlib.pyplot as plt
+        except ImportError:
+            # beats.json is already written; the plot is only for looking at the track
+            plot_note = ("matplotlib is not installed, so no plot is made (the numbers above are written). "
+                         "Ask the user before installing it (pip install matplotlib); --no-plot hides this line.")
+            a.no_plot = True
+    if not a.no_plot:
         mel = librosa.power_to_db(librosa.feature.melspectrogram(S=S ** 2, sr=sr, n_mels=96), ref=np.max)
         pulses_all = [p for r in pumped for p in r["pulses"]]
 
@@ -509,6 +518,8 @@ def main() -> int:
     print(f"loudest {loudest:.2f} s, below -40 dB from {fade_from:.2f} s, silent from {silence_from:.2f} s")
     for p in plots:
         print(f"plot: {p}")
+    if plot_note:
+        print(f"NOTE: {plot_note}")
     return 0
 
 

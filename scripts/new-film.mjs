@@ -15,8 +15,11 @@
  *     and docs/*.md (the slug is the title in lower case, words joined by "-");
  *   - applies --w --h --fps --dur to data/timeline.json. A new length or frame rate
  *     stretches the example sections, cues, marks and checks to fit and snaps every time
- *     to the new frame grid, so the scaffold still passes check-timeline and renders. A
- *     frame that is not wider than 3:2 gets no letterbox;
+ *     to the new frame grid, so the scaffold passes check-timeline (exit 0) and renders. A
+ *     shorter film gives each demo cue back its reading time (0.4 s a word + 0.5 s) where its
+ *     section has room; below about 18 s some demo cues stay short, check-timeline.py warns
+ *     about them, and the scaffold summary says so. A frame that is not wider than 3:2 gets
+ *     no letterbox;
  *   - makes the empty folders of the project layout (docs/concepts, refs/img, ...);
  *   - writes "python3 " for "python " in package.json when only python3 is on PATH;
  *   - runs git init;
@@ -177,6 +180,10 @@ if (existsSync(tlPath)) {
       writeFileSync(sbPath, JSON.stringify(sb, null, 2) + "\n");
     }
     if (k !== 1) notes.push(`the example timeline and storyboard were stretched from ${oldDur} s to ${tl.dur} s; replace them at the storyboard`);
+    if (k < 1) {
+      const short = restoreReading(tl, fps);
+      if (short.length) notes.push(`demo cue(s) ${short.join(", ")} are under their reading time at ${tl.dur} s, so check-timeline.py warns about them: expected below about 18 s, and gone when you write your own cues`);
+    }
   }
   writeFileSync(tlPath, fmt(tl) + "\n");
 }
@@ -208,6 +215,36 @@ function retime(tl, k, fps) {
   if (tl.checks?.black) tl.checks.black = tl.checks.black.map(([a, b]) => [snap(a), Math.min(snap(b), tl.dur)]);
   if (tl.grade && typeof tl.grade.until === "number") tl.grade.until = snap(tl.grade.until);
   if (tl.audio && typeof tl.audio.duration === "number" && k !== 1) notes.push("timeline.audio.duration was left as it is: it is the track's length");
+}
+
+/**
+ * A short --dur squeezes the demo cues under their reading time (0.4 s a word + 0.5 s, at least
+ * 5/6 s: check-timeline.py). Give each cue its time back where its section has room: up to 0.1 s
+ * before the next cue of the section, the section's outgoing transition window, or the black at
+ * the end. Returns the ids that are still short.
+ */
+function restoreReading(tl, fps) {
+  const words = (s) => String(s ?? "").split(/\s+/).filter(Boolean).length;
+  const fr = (t) => Math.round(t * fps);
+  const gap = Math.max(1, Math.round(0.1 * fps));
+  const cues = tl.cues ?? [];
+  const still = [];
+  for (const c of cues) {
+    const n = words(c.text) + (c.role === "data" || c.role === "quote" ? words(c.attribution) : 0);
+    if (!n) continue;
+    const from = fr(c.from);
+    const want = Math.ceil(Math.max(5 / 6, 0.4 * n + 0.5) * fps - 1e-6);
+    if (fr(c.to) - from >= want) continue;
+    let limit = fr((tl.sections ?? []).find((s) => s.id === c.section)?.to ?? c.to);
+    for (const t of tl.transitions ?? []) if (t.a === c.section && fr(t.at - (t.pre ?? 0)) >= fr(c.to)) limit = Math.min(limit, fr(t.at - (t.pre ?? 0)));
+    for (const o of cues) if (o !== c && o.section === c.section && fr(o.from) >= fr(c.to)) limit = Math.min(limit, fr(o.from) - gap);
+    for (const [b] of tl.checks?.black ?? []) if (fr(b) >= fr(c.to)) limit = Math.min(limit, fr(b));
+    const to = Math.min(from + want, Math.max(limit, fr(c.to)));
+    c.to = Math.round((to / fps) * 10000) / 10000;
+    if (c.shown && fr(c.shown.to) < to) c.shown.to = c.to;
+    if (to - from < want) still.push(c.id);
+  }
+  return still;
 }
 
 /** JSON with small objects and arrays on one line, like the template. */
@@ -242,6 +279,14 @@ if (!works("python") && works("python3")) {
   notes.push('package.json scripts call "python3": only python3 is on PATH here');
 } else if (!works("python")) notes.push("no Python 3 found on PATH: the tools in scripts/*.py need Python 3 with numpy, OpenCV, Pillow and librosa");
 
+// ---- path length (Windows) --------------------------------------------------------------
+// Remotion's headless Chrome sits about 110 characters below the project path. At 260 or more
+// Windows cannot start it and every render fails with a bare ENOENT.
+const CHROME_TAIL = 110;
+if (process.platform === "win32" && dir.length + CHROME_TAIL > 259) {
+  notes.push(`WARNING: this path is ${dir.length} characters; Remotion's headless Chrome needs the project path plus about ${CHROME_TAIL} under 260. Move the folder to a shorter path (for example C:\\films\\${slug}) before npm install`);
+}
+
 // ---- git -----------------------------------------------------------------------------
 const git = spawnSync("git", ["init", "-q"], { cwd: dir, encoding: "utf8" });
 if (git.status === 0) notes.push("git repository initialised (nothing committed yet)");
@@ -255,15 +300,18 @@ console.log(`  ${tl.w}x${tl.h}, ${tl.fps} fps, ${tl.dur} s, ${(tl.sections ?? []
 console.log(`  template copied; ${docCount} document template(s); ${toolCount} tool(s) in scripts/`);
 for (const n of notes) console.log(`  ${n}`);
 console.log(`
-Next:
+Next (ask the user before anything is installed or downloaded):
   cd "${rel}"
   npm install                       (downloads Remotion ${pinOf(dir)} and its packages)
   npx remotion browser ensure       (downloads the headless Chrome Remotion renders with)
+  ${python} -c "import numpy, scipy, cv2, PIL, librosa"     (the tools need these; matplotlib is optional, for plots; pip install only after a yes)
   copy the track to assets/audio/ and set "audio" in data/timeline.json
   ${python} scripts/analyze_music.py assets/audio/<track>
   npm run check                     (typecheck + check-timeline)
   node scripts/shots.mjs film --all 2 --sheet     (stills of the test-card film; look at the sheet)
-  npm run studio                    (to watch it)`);
+  ${python} scripts/doctor.py       (after npm install; it reports the section registry as failing until Phase 4 gives every section a stub: expected)
+  npm run studio                    (to watch it)
+On Windows keep the project path short (under about 150 characters, such as C:\\films\\<slug>): Remotion's Chrome needs the whole path plus about 110 characters under 260.`);
 
 function pinOf(d) {
   try {

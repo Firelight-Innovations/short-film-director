@@ -1,6 +1,10 @@
 /**
  * Vendor Google Fonts into assets/fonts/ so a render never needs the network.
  *
+ * THIS SCRIPT DOWNLOADS from Google Fonts (the file URLs in @remotion/google-fonts, on
+ * Google's servers). Run it only after the user has said yes to downloads (SKILL.md, rule
+ * 11); it never asks. A builder does not run it: the builder asks the lead in its log.
+ *
  *   node scripts/fetch-fonts.mjs "Family:400,700" ["Other Family:400,400i@serif" ...] [--subset latin]
  *   node scripts/fetch-fonts.mjs            (no families: fetch any file the manifest lists but the disk lacks)
  *

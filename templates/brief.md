@@ -49,6 +49,11 @@ example line once the field is filled.
   *Example: 2026-11-03*
 - **Deliverables:** <graded mp4, phone preview, captions, vertical cut, thumbnail, report>
   *Example: graded mp4, preview under 28 MiB, .srt captions, report*
+- **Installs, downloads, publishing:** <what the user said yes to: installs (npm, Remotion's
+  browser, Python modules), downloads (fonts; which sources of reference images or
+  footage), anything public (git push, posting, uploading, sharing a link); or "not yet">
+  *Example: yes to npm, the Remotion browser and Google Fonts; yes to public-domain and CC0
+  files from Wikimedia Commons; nothing public until the user says (default: no)*
 
 ## Rights stance
 
@@ -71,8 +76,8 @@ example line once the field is filled.
 
 - **Version pin:** <from package.json>
   *Example: remotion and @remotion/* 4.0.410, react 19.0.0, typescript 5.6.3, zod 3.22.3, three 0.170.0*
-- **Licence:** <people in the collaborating group, freelancers and an operating client included>; <free or company licence needed>; asked on <date>
-  *Example: 1 person; free licence applies; asked 2026-10-22*
+- **Licence:** <headcount of the whole company, and of any client or studio that runs or co-develops the project>; <free, or a Company License needed at 4 or more combined>; asked on <date>
+  *Example: a company of 1, no client or studio on the project; free licence applies; asked 2026-10-22*
 - **Remotion agent skills:** <offered; installed or declined>
   *Example: offered; declined*
 

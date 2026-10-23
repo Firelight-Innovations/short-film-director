@@ -396,6 +396,9 @@ def cmd_check(chains: list[dict], name: str | None) -> int:
 
 
 def cmd_run(chains: list[dict], name: str | None, run_all: bool) -> int:
+    if not chains and not name:
+        print("no chains declared (data/chains.json is missing or empty); nothing to run")
+        return 0
     lock = load_lock()
     if name or run_all:
         for c in pick(chains, name):

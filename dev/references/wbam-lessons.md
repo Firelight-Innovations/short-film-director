@@ -97,7 +97,7 @@ Standing rule used where the brief was silent: Sonnet for sub-agents. Builders w
 - Symptom: a quote cue ended at 28.70 s while its words had to stay to 28.93; a lower-third cue ran to 15.0 s but nothing was allowed on screen from 14.87; a data cue was drawn one frame before its `from`; two words held 3 and 5 frames past `to`.
 - Cause: a handshake requirement or a pump bar start won over the cue window, and nothing compared them.
 - Fix: change the cue `to` where the handshake is the truth; otherwise log it. Better: separate the "readable window" from the "drawn window" in the schema and assert their relation in a script.
-- Where: `data/timeline.json` (`amodei`, `handed`, `invest-us`); `docs/sections/01-recognition.md`, `03-acceleration.md` "Requests to lead".
+- Where: `data/timeline.json` (the S2 quote cue, `handed`, `invest-us`); `docs/sections/01-recognition.md`, `03-acceleration.md` "Requests to lead".
 
 **G5. A Three.js canvas ignores the film clock.**
 - Symptom: a 3D shot froze or ran on the wrong frame when S6 replayed or pinned S5.
@@ -605,7 +605,7 @@ Run everything from the project root. `python` is Python 3.13; use `-X utf8` or 
 **`scripts/analyze_music.py`**
 - Does: converts the mp3 to a mono 22.05 kHz wav with ffmpeg, then with librosa measures tempo (beat tracker plus tempogram second opinion), beat grid, bar phase (which beat of four carries the most low-band and onset energy), onsets with strength, the 40 strongest "hits", structure boundaries (4 s before/after novelty over MFCC and chroma plus loudness novelty, refined to the strongest onset within 0.6 s), loudness landmarks (loudest, fade below -40 dB, silence from, sudden drops and rises), per-video-frame curves (`energy low mid high onset perc` at 30 fps), and a "legacy snap" table. Fits an exact pulse grid in two hand-given "pumped" stretches. Writes `data/beats.json` (compact) and five plots to `out/research/`.
 - CLI: `python scripts/analyze_music.py` (no arguments). Deterministic.
-- Specific: the mp3 path (`assets/solitude_short_cut.mp3`); the `LEGACY` dict of the old timeline's times; the two pumped windows `fit_grid(28.5, 46.7)` and `fit_grid(66.9, 100.2)` and the period search range 0.940 to 0.981 s; the plot windows (0 to 34, 28 to 68, 64 to end, 92 to end) and their cyan/lime annotation of legacy times; `FPS = 30`.
+- Specific: the mp3 path (`assets/<track>.mp3`); the `LEGACY` dict of the old timeline's times; the two pumped windows `fit_grid(28.5, 46.7)` and `fit_grid(66.9, 100.2)` and the period search range 0.940 to 0.981 s; the plot windows (0 to 34, 28 to 68, 64 to end, 92 to end) and their cyan/lime annotation of legacy times; `FPS = 30`.
 - Generic: everything else.
 - Parameterise: take `--audio`, `--fps`, `--out`; drop `LEGACY` (or take `--legacy file.json`); detect pumped or periodic regions automatically (search windows where a single period/phase explains the onset envelope with a score above a threshold) instead of hand windows; emit candidate cut points (ranked hits, structure peaks, downbeats) as `marks` suggestions; add a short text "music brief" (tempo, sections by loudness, where the quiet is) for ideation; make the plots optional.
 

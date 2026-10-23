@@ -19,8 +19,9 @@ export const meta = {
 //     options: 8,        // optional: one-liners in the burst, 6 to 12 (default 8)
 //     keepKill: "...",   // optional: the user's keep-and-kill list, as text
 //     datum: "1",        // optional: key of the first datum ("1".."n" or "wildcard"); else the judge picks
-//     model: "opus",     // optional: overrides every agent (default: burst and writers inherit, judge sonnet)
-//     judgeModel: "...", // optional: overrides the judge only
+//     model: "opus",     // optional: overrides every agent (default: none; all inherit the session's model)
+//     judgeModel: "...", // optional: overrides the judge only (default: model, else the session's model)
+//                        // The judge is a strong model, like the writers (SKILL.md, rule 10).
 //   } })
 // Reads:   docs/brief.md, data/beats.json, out/research/music.png, and in the skill
 //          references/01-intake-and-ideation.md, references/music.md, templates/concept.md
@@ -107,7 +108,7 @@ if (nOptions < keys.length) {
 const half = Math.ceil(nOptions / 2)
 
 const writerModel = A.model
-const judgeModel = A.judgeModel || A.model || 'sonnet'
+const judgeModel = A.judgeModel || A.model // undefined: the judge inherits the session's model, like the writers
 
 const KEEPKILL = isText(A.keepKill)
   ? `The user's keep-and-kill list. Keep what it keeps and never use what it kills:\n${A.keepKill.trim()}`

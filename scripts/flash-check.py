@@ -1,4 +1,4 @@
-"""Flash-safety screen of a finished file or a folder of frames (WCAG 2.3.1 style).
+"""Flash-safety screen of a finished file or a folder of frames (broadcast area by default).
 
     python scripts/flash-check.py <video.mp4 | folder of frames> [--from s] [--to s] [--fps n]
                                   [--area 0.25] [--max-flashes 3]
@@ -14,6 +14,13 @@ pass --area to tighten it). A red flash is a pair of opposing changes involving
 saturated red: R/(R+G+B) at least 0.8 and a change in (R-G-B) x 320 above 20.
 Flashing sequences longer than five seconds carry risk even under the limit
 (BT.1702-3), so they are reported as a warning.
+
+Which area to trust. The default, --area 0.25, is the broadcast (television)
+reading: ITU-R BT.1702 counts a flash only over a quarter of the screen. A PASS at
+the default is NOT a WCAG 2.3.1 claim, because WCAG's own limit is a quarter of any
+10-degree field, about 3 percent of the screen. So for web delivery (LinkedIn,
+YouTube, a site) also run `--area 0.03` and judge each region that fails
+(references/safety-and-rights.md, section 2). A broadcast ad needs a certified test.
 
 How it measures: each frame is shrunk to about 96 x 54 (area average) and turned
 into relative luminance (linear sRGB, 0.2126 R + 0.7152 G + 0.0722 B). Each cell
@@ -175,12 +182,15 @@ class Tracker:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(prog="flash-check.py", description="WCAG 2.3.1 style general and red flash screen (exit 3 on FAIL).")
+    ap = argparse.ArgumentParser(prog="flash-check.py", description="General and red flash screen after WCAG 2.3.1 and ITU-R BT.1702 (exit 3 on FAIL). "
+                                 "The default --area 0.25 is the broadcast reading, not a WCAG 2.3.1 claim: "
+                                 "for web delivery also run --area 0.03 (references/safety-and-rights.md, section 2).")
     ap.add_argument("src", help="an mp4 (any ffmpeg input) or a folder of sequential frames")
     ap.add_argument("--from", dest="t0", type=float, default=0.0, help="start, seconds (default 0)")
     ap.add_argument("--to", dest="t1", type=float, default=0.0, help="end, seconds (default: the end)")
     ap.add_argument("--fps", type=float, default=None, help="frame rate (video: resample to it; folder: default timeline fps, else 30)")
-    ap.add_argument("--area", type=float, default=0.25, help="share of the screen that must change together (default 0.25)")
+    ap.add_argument("--area", type=float, default=0.25, help="share of the screen that must change together (default 0.25, the broadcast reading; "
+                         "use 0.03 for web delivery, which approximates WCAG's smaller limit)")
     ap.add_argument("--max-flashes", type=float, default=3, help="flashes allowed in any one second (default 3)")
     ap.add_argument("--long", type=float, default=5.0, help="warn on flashing sequences longer than this, seconds (default 5)")
     a = ap.parse_args()
@@ -281,7 +291,8 @@ def main() -> int:
     rw_, rat = worst(red_events)
     limit = int(2 * a.max_flashes)
     print(f"flash-check: {src.as_posix()}")
-    print(f"frames {count} (f{first_n}..f{last_n}, {first_n / fps:.2f}-{(last_n + 1) / fps:.2f} s) at {fps:g} fps, grid {grid[0]}x{grid[1]}, area {a.area:.0%}")
+    print(f"frames {count} (f{first_n}..f{last_n}, {first_n / fps:.2f}-{(last_n + 1) / fps:.2f} s) at {fps:g} fps, grid {grid[0]}x{grid[1]}, area {a.area:.0%}"
+          + (" (broadcast reading, not a WCAG 2.3.1 claim; for web delivery also run --area 0.03)" if a.area > 0.05 else ""))
     print(f"general: {len(gen_events)} luminance transitions = {len(gen_events) / 2:g} flashes; worst one-second window "
           f"{gw_} transitions = {gw_ / 2:g} flashes" + (f" from {tt(gat)}" if gat is not None else "") + f" (limit {a.max_flashes:g})")
     print(f"red:     {len(red_events)} saturated-red transitions = {len(red_events) / 2:g} flashes; worst one-second window "

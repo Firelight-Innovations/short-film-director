@@ -72,7 +72,8 @@ word on the 360 px phone sheets.
 Exact values are the `palette` of each section in `data/timeline.json`.
 
 - **Fonts:** vendor every family in the table before the first style frame and before the
-  animatic: `node scripts/fetch-fonts.mjs "<Family>:400,700" ...`. Until a family is
+  animatic: `node scripts/fetch-fonts.mjs "<Family>:400,700" ...`. The script downloads
+  from Google Fonts, so run it after the user's yes to downloads. Until a family is
   vendored the kit draws a system font and prints a warning.
   *Example: `node scripts/fetch-fonts.mjs "Archivo Black:400" "Space Grotesk:400,700" "JetBrains Mono:400"`*
 - **Warmth or coolness of the film:** <which palette fields carry it>. The grade has no

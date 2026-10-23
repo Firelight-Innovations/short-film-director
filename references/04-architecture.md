@@ -162,7 +162,10 @@ once said 1966.
 `SectionId` is a string; the sections come from `timeline.json` and match
 `^[0-9]{2}-[a-z0-9-]+$`. `src/sections/registry.ts` maps ids to components. An id with no
 component renders as a labelled test card in its palette, so a section added to the
-timeline plays at once and the film always renders end to end.
+timeline plays at once and the film always renders end to end. Before the builders launch,
+each section gets a stub that is the same card, registered
+(`export const Section = makePlaceholder("<id>");`, with `makePlaceholder` imported from the
+kit; 05-build.md, section 3). `doctor.py` fails an unregistered section.
 
 A section is one component:
 
@@ -378,7 +381,8 @@ useEffect(() => {
 ## 11. Fonts
 
 Fonts are vendored, never fetched at render time: `node scripts/fetch-fonts.mjs
-"Family:400,700" ...` downloads them into `assets/fonts/` and records them in
+"Family:400,700" ...` downloads them from Google Fonts into `assets/fonts/` (only after the
+user's yes to downloads; builders never run it: they ask the lead) and records them in
 `src/kit/fonts.manifest.json`. A section calls `const SERIF = font("Family")` at module
 top level and uses the returned CSS family. A family that is not vendored falls back to
 a system font with a console warning, so the film still renders, but on a font that
@@ -446,8 +450,8 @@ Use `<ThreeCanvas width={CANVAS.width} height={CANVAS.height}>` from `@remotion/
 
 Per-pixel looks (film and tape damage, interlace, chroma bleed, charcoal and paint
 strokes, tracked meshes, fluid ink) cannot run in a browser within budget. Do the work once
-in Python (numpy, OpenCV, Pillow, scikit-image), Blender (`blender -b`) or ffmpeg, write
-plates into `assets/footage/<id>/`, and play them back with `<Img>`. On the first film
+in Python (numpy, scipy, OpenCV, Pillow, librosa; matplotlib is optional for plots),
+Blender (`blender -b`) or ffmpeg, write plates into `assets/footage/<id>/`, and play them back with `<Img>`. On the first film
 every heavy look was done this way and played back at 50 to 130 ms a frame; the full
 3600-frame render took under three minutes.
 
@@ -538,14 +542,21 @@ python scripts/doctor.py [--quick]         the pre-render health check
 `src/` is vendored; every `staticFile("...")` literal and every board image exists under
 `assets/` with the exact case (Windows forgives a wrong case; Linux does not); every
 registered section id is in the timeline and the other way round; `beats.json` exists when
-the film has audio; the installed Remotion packages match the pins in `package.json`; the
-final props turn the dev overlay off; ffmpeg and ffprobe are on PATH. Exit 3 on any FAIL.
+the film has audio (and a WARN when it holds beats but `timeline.audio` is null, because
+the film would render silent); the installed Remotion packages match the pins in
+`package.json`; the final props turn the dev overlay off; ffmpeg and ffprobe are on PATH;
+on Windows, the project path leaves room for Remotion's headless Chrome (the path plus about
+110 characters must stay under 260, or every render fails with an ENOENT spawn error); and
+numpy, scipy, cv2, PIL and librosa import (matplotlib only warns: it draws plots).
+`doctor.py` never installs anything. Exit 3 on any FAIL. A fresh scaffold fails the registry
+check until Phase 4 gives every section a stub, and the Remotion check until `npm install`
+has run; that is expected.
 
 Why: on the first film a changed cue in a baked section, or any change to the sections the
 recap sampled, would have shipped old frames silently, and three hand-run commands were the
-only guard. Run `doctor.py` before every full render. Write `staticFile` paths as literals
-where you can, so `doctor.py` can see them; a path built from a frame number is covered by
-the generator's own manifest instead.
+only guard. Run `doctor.py` before every full render of the Film (Phase 4 on). Write
+`staticFile` paths as literals where you can, so `doctor.py` can see them; a path built from a
+frame number is covered by the generator's own manifest instead.
 
 ## 18. Colour: limited-range BT.709
 
@@ -607,6 +618,13 @@ parts with `--frames` and join them with ffmpeg's concat. Pass props as a file
 The same limit hits tools that build long ffmpeg expressions: split long frame lists into
 several `select` expressions (the expression parser fails on a few hundred terms), and in
 Python strings escape filter commas as `"\\,"`.
+
+**The path limit.** Windows also caps a file path at 260 characters. Remotion's headless
+Chrome sits at `<project>\node_modules\.remotion\chrome-headless-shell\win64\...\chrome-headless-shell.exe`,
+about 110 characters below the project folder. In a deep folder (one scaffold measured 268
+characters) every render, still and animatic fails with `spawn ... ENOENT`, and the message
+never mentions the length. Keep the project at a short path such as `C:\films\<slug>`;
+`doctor.py` fails a path that is too long.
 
 ## 22. The speed budget
 

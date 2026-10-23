@@ -94,7 +94,11 @@ lead" in your log, and work around it in your own folder meanwhile.
 
 ## Crew rules
 
-- No `npm install`, `pip install` or any installer.
+- **Never install, download or publish.** No `npm install`, `pip install`, `npx skills` or any
+  installer; no font, image, footage or tool from the network; no upload, post or push. If you
+  need one, say what, from where and under which licence under "Requests to lead" in your
+  log, and work with what is in the project meanwhile. The lead asks the user first (one yes
+  can cover a named class of files, recorded in the lead's brief) and then does it or says no.
 - No git commands that change state (no add, commit, stash, checkout, reset).
 - Do not kill processes you did not start; other builders have Chrome and Python running.
   Keep long Python jobs to a few processes.
@@ -144,7 +148,7 @@ Destructure only the props you use: unused names are type errors in this project
   carried between frames. Randomness from `rnd("stable-key-" + i)`; boil with `hold(frame, 2)`.
 - **Assets** load before the frame is taken: `<Img>`, `staticFile()`, a labelled
   `delayRender` with a timeout for anything loaded by hand. Plates play by film frame.
-- **Fonts**: `font("Family")` at module top level. Vendored families: <list>. Ask for others.
+- **Fonts**: `font("Family")` at module top level. Vendored families: <list>. Need another? Ask the lead under "Requests to lead".
 - **Three.js**: `useFilmTime()` outside `<ThreeCanvas>`, the frame passed in as a prop; text
   in the DOM above the canvas.
 - **SVG filters**: `filterUnits="userSpaceOnUse"`, a region larger than the frame.
@@ -202,11 +206,12 @@ If time runs short, cut in this order (from `docs/storyboard.md`):
 
 ## Media and rights
 
-Code-drawn first. Then: files already in `assets/`; <public-domain or CC0 sources allowed for
-this film, and how to get them>; <generated media: allowed or not, which tool>. Nothing else
-from the network; no paid services. Download into `work/<id>/`. Log every file you bring in:
-`python scripts/log-asset.py "<file>: source, URL, licence, how processed"`. <Anything this
-section must not show: real people, logos, a likeness.>
+Code-drawn first. Then: files already in `assets/` and `work/`; <public-domain or CC0 sources
+the user has said yes to for this film, or "none": ask the lead for a file under "Requests to
+lead" and the lead fetches it after the user's yes>; <generated media: allowed or not, which
+tool>. You do not download anything yourself, and there are no paid services. Log every file
+you bring in or make from a source: `python scripts/log-asset.py "<file>: source, URL, licence,
+how processed"`. <Anything this section must not show: real people, logos, a likeness.>
 
 ## Deliverables
 

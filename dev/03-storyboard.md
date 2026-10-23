@@ -245,10 +245,10 @@ jpeg quality 95, publicDir `assets`, delayRender timeout 180 s.
 | sheet | `python scripts/sheet.py <out.jpg> [--cols 6] [--w 480] <images…>` | labelled contact sheet | 0 |
 | review-frames | `node scripts/review-frames.mjs [t-ids…]` | every frame around each transition window, sheets + full-size cut frames + frames.json → `out/review/<id>/` | 0 |
 | film-frames | `python scripts/film-frames.py <mp4> [--every 0.5] [--last 3]` | frames from a FINISHED file: every N s, every frame of the last N s before the first `checks.black` range (or the end), key stills; sheets + frames.json → `out/final-review/` | 0 |
-| flash-check | `python scripts/flash-check.py <mp4\|dir> [--from s] [--to s] [--fps n]` | general and red flash counts per second (WCAG 2.3.1 style) | 0 PASS / 3 FAIL |
+| flash-check | `python scripts/flash-check.py <mp4\|dir> [--from s] [--to s] [--fps n]` | general and red flash counts per second; default `--area 0.25` is the broadcast reading, and web delivery also runs `--area 0.03` (amended after review) | 0 PASS / 3 FAIL |
 | black-check | `python scripts/black-check.py <mp4>` | `checks.black` ranges and last frame are black; letterbox bars carry no picture | 0 / 3 |
 | grade | `python scripts/grade.py <in.mp4> <out.mp4>` | ffmpeg grade from `timeline.grade`, off from `until`; repaints the letterbox black; bt709 tv; audio copied | 0 |
-| preview | `python scripts/preview.py <in.mp4> <out.mp4> [--max-mib 28] [--height 720]` | small copy for phones and chat (two-pass to a size) | 0 |
+| preview | `python scripts/preview.py <in.mp4> <out.mp4> [--max-mib 28] [--height N]` | small copy for phones and chat (two-pass to a size; default a 720 px short side, amended after review) | 0 |
 | log-decision | `python scripts/log-decision.py "who: what, and why"` | appends a timestamped line to `docs/decisions.md` | 0 |
 | fetch-fonts | `node scripts/fetch-fonts.mjs "Family:400,700" …` | vendors Google Fonts into `assets/fonts/` + `src/kit/fonts.manifest.json` | 0 |
 | plates-from-film | `node scripts/plates-from-film.mjs <plates.json>` | renders bare film stills at listed times to listed files (a section that reuses the film's own frames) | 0 |
@@ -305,10 +305,11 @@ Sources: `dev/references/*.md`, above all `wbam-lessons.md` "What to change next
 
 - **Intake** also creates `docs/rights.md` (the rights register, `templates/rights.md`):
   music, likenesses, generated media, footage, fonts, each with owner, licence, use,
-  status. It runs the **Remotion licence check** (free for up to 3 people in the whole
-  collaborating group, including freelancers and a client that operates the project; a
-  company licence above that; a client that only receives the mp4 does not count) and
-  records the answer. It pins the Remotion version in the brief. It offers the official
+  status. It runs the **Remotion licence check** (free for individuals, non-profits, and a
+  for-profit company whose total headcount plus any client or studio that operates the
+  project is 3 or fewer; count whole companies; a client that only receives the mp4 does
+  not count; a Company License above that; corrected after the safety review) and records
+  the answer. It pins the Remotion version in the brief. It offers the official
   Remotion agent skills (`npx skills add remotion-dev/skills`) as a complement, only with
   the user's yes.
 - **Ideation** diverges before it converges: about eight one-line options first (a Crazy

@@ -301,7 +301,8 @@ often go wrong:
   family in the register.
 
 Every file that enters `assets/` or `refs/img/` gets a line from `log-asset.py`; the end
-credits and the report are built from those lines.
+credits and the report are built from those lines. None of it is downloaded before the
+user has said yes to downloads (`SKILL.md`, rule 11).
 
 ## 9. AI-generated media and its disclosure
 
@@ -372,10 +373,10 @@ the post text as well.
 
 ## 11. The Remotion licence and codec patents
 
-- **Licence.** Free for individuals, non-profits, evaluators, and organisations of up to
-  three people; count everyone in the collaborating group who writes, operates or
-  co-develops the project, including freelancers and a client that operates it; a client
-  that only receives the mp4 does not count; four or more need a Company License [R1][R2].
+- **Licence.** Free for individuals, for non-profits, and for a for-profit company whose
+  total headcount, plus any client or studio that operates or co-develops the project, is
+  3 or fewer. Count whole companies, not only the people on the film. A client that only
+  receives the mp4 does not count. 4 or more combined need a Company License [R1][R2].
   The check happens at intake (`references/01-intake-and-ideation.md`, section 4) and its
   answer goes in the brief and the register.
 - **Output.** Neither the LICENSE nor the FAQ says who owns rendered output; before a
@@ -402,10 +403,12 @@ Never commit:
 - **personal data**: email addresses, phone numbers, names of private people, anything the
   user gave you in confidence;
 - **font files without their licence**: OFL fonts may be redistributed with the licence
-  text beside them [18]; otherwise leave them out and let `fetch-fonts.mjs` fetch them.
+  text beside them [18]; otherwise leave them out and let `fetch-fonts.mjs` fetch them
+  (after the user's yes to downloads).
 
-Before the first push, list what would be committed and look for trouble (run from the
-project root):
+A push makes the repository public, so ask the user first (`SKILL.md`, rule 11). Before the
+first push, list what would be committed and look for trouble (run from the project
+root):
 
 ```python
 import re
@@ -442,7 +445,8 @@ pushing anywhere public.
 ## 13. Before posting: what to tell the user
 
 The report (`templates/report.md`) carries this list with each item's state. Say each one
-plainly, even when the answer is "nothing to do":
+plainly, even when the answer is "nothing to do". Nothing is posted, uploaded or shared on
+the user's behalf without their yes (`SKILL.md`, rule 11):
 
 1. **Music**: whose it is, what the licence covers, and whether a claim or block is likely
    on each platform.

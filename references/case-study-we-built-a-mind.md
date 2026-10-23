@@ -151,7 +151,7 @@ tier at the commissioner's request during setup.
 | Final render | 2 m 31 s, then 2 m 13 s after the fixes (about 42 and 37 ms a frame over 3600 frames) |
 | Grade | 59 s, then 57 s |
 | File sizes | ungraded 199 MB, then 201 MB; graded 223 MB, then 225 MB |
-| Flash check, whole graded film | PASS: 29 luminance transitions, 8 flashes, worst one-second window 2, limit 3, no saturated red |
+| Flash check, whole graded film | PASS: 29 luminance transitions, 8 flashes, worst one-second window 2, limit 3, no saturated red. This used the broadcast area rule (a quarter of the screen); the small-area reading for the web (`--area 0.03`) was not run. |
 | Flash check, S6 (92.0 to 100.6 s) | PASS: 3 flashes, worst second 2 |
 | Black check | PASS: frames 2996 to 3026 and frame 3599 at luma 0; letterbox bars at most 9 (first render) and 5 (second) of 255, outside the two rows that touch the picture |
 | Determinism | Two renders of the same frames without text were bit-identical; text edges differed by at most 3/255 |
@@ -285,7 +285,8 @@ what to drop first.
 | Plates that know they are stale | `data/chains.json`, `chain.py`, and `doctor.py` before every full render | SKILL.md, Phases 4 and 5 |
 | A final review by cue, repeated after fixes | `film-frames.py` samples every cue and transition and adds phone-size sheets; `diff-frames.py` and `final-review.js` in `diff` mode | SKILL.md, Phase 6 |
 | Drawn windows apart from readable ones | `shown` on a cue | `references/03-storyboard.md` (timeline schema) |
-| Ids without content | Role-based cue ids (`stamp-1`, `slam-2`) | `references/03-storyboard.md` |
+| Ids without content | Role-based cue ids (`stamp-1`, `slam-2`); `check-timeline.py` warns on any other | `references/03-storyboard.md` |
+| Installs, downloads and publishing with no yes | Ask the user before any install, download or public step; one yes at intake can cover a named class | SKILL.md, rule 11 and Phase 0 |
 | A queue for requests | Requests to lead with an owner and a status | `templates/report.md` |
 | A cut list | An ordered cut list per section at storyboard time | `docs/storyboard.md` (`templates/storyboard.md`) |
 
@@ -312,7 +313,12 @@ what to drop first.
 9. **Rights and safety are craft.** The facts rework, flash safety designed from numbers,
    and the rights questions that were still open at the end.
 10. **Spend where it shows.** Cheap research, strong builders and judges, mid reviewers;
-    and the pure-code section that a cheaper model could have built.
+    the fact-check that needed more than the cheap tier it got; and the pure-code section
+    that a cheaper model could have built.
+11. **Ask before anything is installed, downloaded or made public.** The brief said "one
+    shot, no questions". Blender was installed in the background during setup (L53), and
+    the questions about the track and a traced likeness reached the commissioner only in
+    the report (L74).
 
 ---
 

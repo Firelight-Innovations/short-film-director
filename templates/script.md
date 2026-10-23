@@ -5,8 +5,9 @@ Every word that will be on screen or spoken, in film order
 `data/timeline.json` must end up equal to the **Text** column, and for `data` and `quote`
 cues equal to the verified wording in `docs/research/facts.md`.
 
-**Reading budget:** 0.4 s a word plus 0.5 s, never under 0.83 s; at most 7 s an event;
-two lines at most; each line within about 68 percent of the frame width (1306 px at 1920).
+**Reading budget:** 0.4 s a word plus 0.5 s, never under 0.83 s; at most 7 s an event
+(`logo` and `credit` cues are exempt); two lines at most; each line within about 68 percent
+of the frame width (1306 px at 1920; 972 px, the title-safe width, for 9:16).
 Every text shot works with the sound off. Ids are role-based (`slam-1`, `data-3`), never
 content.
 

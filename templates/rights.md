@@ -66,7 +66,7 @@ until the user has decided knowingly, and the row records that decision and its 
 
 | Item | Owner | Licence | Use | Status |
 |---|---|---|---|---|
-| Remotion 4.0.410 | Remotion | Remotion License: free for a collaborating group of up to 3 people; a Company License above that | renders the film | <people counted, date asked> |
+| Remotion 4.0.410 | Remotion | Remotion License: free for individuals, non-profits, and a for-profit company whose total headcount plus any client or studio that runs or co-develops the project is 3 or fewer; a Company License at 4 or more combined | renders the film | <headcount counted (whole companies), date asked> |
 | H.264 and AAC in the delivered mp4 | patent pools | patent licensing is the user's responsibility (Remotion FAQ) | the delivered file | <told the user on date> |
 | <other tool> | <owner> | <licence> | <use> | <status> |
 

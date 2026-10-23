@@ -44,7 +44,8 @@ renders; a section that does not render is the only thing that stops the phase.
 - `python scripts/check-timeline.py` exits 0 and `python scripts/snap.py` exits 0 (or every
   boundary off the grid has a logged reason).
 - Every `data` and `quote` cue is `verified` or `corrected` in `docs/research/facts.md`.
-- `npx remotion browser ensure` has run once on this machine.
+- `npm install` and `npx remotion browser ensure` have run once on this machine. Both
+  download, so they ran only on the user's yes (SKILL.md rule 11).
 - `npx remotion benchmark` has given you a concurrency for this machine (04-architecture.md,
   section 20).
 - Usage: read where the window stands and say it to the user (section 14).
@@ -56,7 +57,9 @@ each of them a message and a re-check, so do it now:
 
 1. **Tokens and fonts.** Check `CANVAS`, `LETTERBOX_PX`, `SAFE` and each section's palette in
    the timeline. Vendor every family the style bible names:
-   `node scripts/fetch-fonts.mjs "Family:400,700" ...`.
+   `node scripts/fetch-fonts.mjs "Family:400,700" ...`. It downloads from Google Fonts, so
+   run it only after the user's yes to downloads (rule 11); without that yes, use the
+   fonts already vendored.
 2. **Shared pieces.** Anything two sections must share goes in the kit or in
    `assets/footage/shared/` now: a still both sides of a handshake use, a scene file two
    renderers read, a helper two builders would each write. **A film with one look
@@ -73,16 +76,20 @@ each of them a message and a re-check, so do it now:
 
    ```tsx
    // src/sections/<id>/index.tsx (the builder replaces it)
-   import { AbsoluteFill } from "remotion";
-   import { PALETTE } from "../../kit";
-   import type { SectionComponent } from "../../kit";
-   export const Section: SectionComponent = () => <AbsoluteFill style={{ background: PALETTE("<id>").bg }} />;
+   import { makePlaceholder } from "../../kit";
+   export const Section = makePlaceholder("<id>");
    ```
 
+   The stub is a labelled card in the section's palette. It keeps the section's cues
+   visible and, when it owns a transition, cuts hard at `at` instead of showing its own
+   colour through the whole window (a flat-colour stub takes over the window's `pre` frames
+   and the previous section's last frames vanish).
+
    Add `import { Section as S<nn> } from "./<id>";` and `"<id>": S<nn>,` to
-   `src/sections/registry.ts`. Remove the template's worked example `00-open` (folder and
-   registry entry) unless the film has a section by that id; `doctor.py` checks the registry
-   and the timeline against each other.
+   `src/sections/registry.ts`. Replace the template's worked example `00-open` (folder and
+   registry entry) even if the film has a section by that id, with that section's stub, or
+   remove it if the film has none; `doctor.py` checks the registry and the timeline against
+   each other.
 4. **Logs.** Copy `docs/section-log.md` (from `templates/section-log.md`) to
    `docs/sections/<id>.md` with the header filled in.
 5. **Chains you already know.** A section that bakes its words or reuses the film's frames
@@ -90,7 +97,9 @@ each of them a message and a re-check, so do it now:
    placeholder the builder will fill.
 6. **Check.** `npm run check` (typecheck and `check-timeline.py`), then
    `python scripts/doctor.py --quick`, then a few stills of the film:
-   `node scripts/shots.mjs film --all 5 --sheet kit`. Look at the sheet.
+   `node scripts/shots.mjs film --all 5 --sheet kit`. Look at the sheet. `doctor.py` fails
+   the registry check until every section has its stub (step 3); from Phase 4 on, run it
+   before every full render of the Film.
 7. **Commit** the kit, data and briefs, so each builder starts from a known state.
 
 On the first film the lead patched the kit three times while eight builders worked (a frame
@@ -134,16 +143,20 @@ nothing:
 | Research, reference gathering | cheap | Haiku (`research.js` default) | volume work against a fixed template and schema |
 | Fact checks: two checkers and a reconciler per cue | mid | Sonnet (`fact-check.js` default) | the first film's cheap fact pass let four misworded or unverifiable claims through; a fact on screen is where a film is wrong in public. Give each checker its own search budget |
 | Concept writers | strong | Opus (`concepts.js`: the session's model) | ideas are the product |
-| Concept judge | mid | Sonnet (`concepts.js` default) | scores against a fixed Pugh matrix; raise it to strong when the concepts are close |
+| Concept judge | strong | Opus (`concepts.js`: the session's model, like the writers) | the ranking decides which film is built, and a wrong pick costs the whole build; the second-datum check and the tie-break (Murch's order) need judgement, not a lookup |
 | Section builders | strong | Opus | the film is made here; a weak section shows |
 | A simple section (type on a plain field, pure code, no plates) | mid | Sonnet | the first film's pure-code section rendered at 30 to 42 ms a frame and needed no plates |
 | Boundary reviewers | mid | Sonnet | frames and a fixed template; parallel and cheap |
 | Final reviewer | strong, fresh | Opus | found the one broken item that a builder, the lead and eight reviewers had passed |
 | The lead | the session itself | | |
 
+In one line, as in SKILL.md rule 10: cheap models research; strong models write and judge
+the concepts, build the sections and give the final review; mid models check facts and
+review boundaries.
+
 The first film ran Haiku research, eight Opus builders, eight Sonnet boundary reviewers
 and one fresh Opus final reviewer, and spent 77 percent of one five-hour Max window in an
-afternoon.
+afternoon. (It had no ideation stage, so it had no concept judge.)
 
 ## 6. Launching the builders: named agents or build-sections.js
 
@@ -154,8 +167,9 @@ each `run_in_background: true`, `name: "sec-<id>"`, on the strong model, with a 
 You are the builder of section <id> of the film in <project>.
 Read <project>/docs/sections/<id>.brief.md first, then <skill>/references/04-architecture.md
 and <skill>/references/05-build.md (sections 8 to 11). Build the section as the brief says.
-Your log is <project>/docs/sections/<id>.md. When done, reply with the short final
-message the brief asks for.
+Never install, download or publish anything; ask the lead in your log. Your log is
+<project>/docs/sections/<id>.md. When done, reply with the short final message the brief
+asks for.
 ```
 
 A fix round later goes to the same agent with `SendMessage({ to: "sec-<id>", message })`,
@@ -175,8 +189,8 @@ One builder per section, brief from `docs/sections/<id>.brief.md`, at most `maxP
 at once (default 8; more run in later waves), on `model` (default: the session's). It
 returns each builder's report: status (`done`, `floor only`, `blocked`), summary, log, stills,
 ms per frame, known issues, requests. A fix round is the same script with
-`fixes: { "<id>": "<findings, or the path of a review file>" }`: a fresh agent that reads the
-section log, the brief and the findings. Cost: a builder inside a workflow cannot be messaged
+`fixes: { "<id>": "<findings, or the path of a review file>" | ["<review file 1>", "<review
+file 2>"] }`: a fresh agent that reads the section log, the brief and the findings. Cost: a builder inside a workflow cannot be messaged
 while it runs, so a kit change mid-build reaches it only through its next round; and every
 fix round pays again to read the brief, the log and the code. It is the better choice when
 builds are independent and unlikely to need a second round, or when the session cannot hold
@@ -220,6 +234,15 @@ keep Python jobs to a few processes per builder, and do not render the full film
 builders bench.
 
 ## 8. How a builder works: floor, depth, edges, cost, stop
+
+**Crew rules.** A builder writes only inside what it owns, runs no git command that changes
+state, kills no process it did not start, and **never installs, downloads or publishes**: no
+`npm install`, `pip install`, `npx skills`, no fonts, images or footage from the network, no
+upload and no push. When a section needs one of those, the builder says what, from where and
+under which licence in "Requests to lead" in its log, and works with what is in the project
+meanwhile. The lead asks the user before any install, any download or anything public
+(SKILL.md rule 11; one yes at intake can cover a named class, recorded in the brief), then
+does it or declines.
 
 1. **Floor first.** Build the simplest complete version of the whole render range: every
    shot present, every cue on screen and readable on its `from` frame, both boundaries
@@ -332,8 +355,9 @@ percent of pixels.
 ## 11. Requests to lead
 
 A builder writes only inside what it owns. Anything else (a kit helper, a cue time, a
-`shown` window, a font, a change to a handshake, a bug in a tool) goes under "Requests to
-lead" in its log, with an id, and the builder works around it locally meanwhile. The lead
+`shown` window, a font, an install or a download, a change to a handshake, a bug in a tool)
+goes under "Requests to lead" in its log, with an id, and the builder works around it
+locally meanwhile. The lead
 reads requests first when a builder lands, answers each (done, declined with the reason, or
 open with an owner) and carries the open ones into the report's queue.
 

@@ -29,26 +29,29 @@ Clone it into your skills folder:
 git clone https://github.com/Firelight-Innovations/short-film-director ~/.claude/skills/short-film-director
 ```
 
-Then ask Claude Code for a film: "make a 45-second launch film for our product, cut to
+The skill asks before it installs, downloads or publishes anything. Then ask Claude Code
+for a film: "make a 45-second launch film for our product, cut to
 this track", "storyboard this script and make an animatic", "turn this essay into a
 kinetic-type film".
 
 ## What you need
 
 - Node 18+ and npm (Remotion 4, React 19, TypeScript; versions are pinned in the template)
-- Python 3.11+ with numpy, Pillow, OpenCV and librosa (music analysis, checks, contact sheets)
+- Python 3.11+ with numpy, scipy, Pillow, OpenCV and librosa (music analysis, checks,
+  contact sheets); matplotlib is optional, for the music and motion plots
 - ffmpeg and ffprobe on the PATH
 - Optional: Blender for pre-rendered 3D plates
 
-Remotion is free for a collaborating group of up to three people, freelancers and any
-client who operates the project included; four or more need a company licence. Check
-[remotion.dev/license](https://www.remotion.dev/license) before you use it at work. The
-skill asks at intake.
+Remotion is free for individuals, for non-profits, and for a for-profit company whose
+total headcount, plus any client or studio that operates or co-develops the project, is
+three or fewer. Count whole companies, not only the people on the film. Four or more need
+a Company License: check [remotion.dev/license](https://www.remotion.dev/license) before
+you use it at work. The skill asks at intake.
 
 ## Cost
 
 A full multi-style two-minute film runs for hours and uses a large share of a usage
-window: about twenty agents, with strong models building and judging. The skill says so
+window: 35 to 55 agents, with strong models building and judging. The skill says so
 before it starts and offers a 15-second test film first.
 
 ## Layout

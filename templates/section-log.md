@@ -95,7 +95,9 @@ Be honest; say what you would fix next, and where.
 
 ## Requests to lead
 
-One per line, with an id the lead can answer.
+One per line, with an id the lead can answer. This is also where you ask for anything to be
+installed or downloaded, or for anything public: what, from where, under which licence. You do
+not do it yourself.
 
 | # | Request | Why | Status |
 |---|---|---|---|

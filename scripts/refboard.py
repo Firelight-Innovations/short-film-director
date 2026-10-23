@@ -29,6 +29,7 @@ from __future__ import annotations
 import argparse
 import importlib.util
 import json
+import math
 import re
 import subprocess
 import sys
@@ -89,10 +90,13 @@ def board(out: Path, title: str, items: list[tuple[dict, Image.Image | None]], c
     cols = max(1, min(cols, len(items)))
     rows = (len(items) + cols - 1) // cols
     top = 30
-    img = Image.new("RGB", (cols * w, top + rows * (h + lab)), BG)
-    d = ImageDraw.Draw(img)
     f_title, f_lab, f_card = sheet_mod.font(18), sheet_mod.font(14), sheet_mod.font(15)
-    d.text((8, 6), asc(title), fill=INK, font=f_title)
+    # A board with few tiles is narrower than its heading: widen the image to the heading.
+    head = asc(title)
+    head_w = math.ceil(ImageDraw.Draw(Image.new("RGB", (1, 1))).textlength(head, font=f_title)) + 16
+    img = Image.new("RGB", (max(cols * w, head_w), top + rows * (h + lab)), BG)
+    d = ImageDraw.Draw(img)
+    d.text((8, 6), head, fill=INK, font=f_title)
     for i, (r, im) in enumerate(items):
         x, y = (i % cols) * w, top + (i // cols) * (h + lab)
         if im is not None:

@@ -1,0 +1,46 @@
+{
+  "name": "__SLUG__",
+  "version": "0.1.0",
+  "private": true,
+  "description": "__TITLE__",
+  "license": "UNLICENSED",
+  "scripts": {
+    "studio": "remotion studio",
+    "typecheck": "tsc --noEmit",
+    "check": "tsc --noEmit && python scripts/check-timeline.py",
+    "animatic": "remotion render Animatic out/animatic.mp4 --scale=0.5",
+    "render:final": "node scripts/render-final.mjs",
+    "grade": "python scripts/grade.py",
+    "preview": "python scripts/preview.py",
+    "doctor": "python scripts/doctor.py",
+    "shots": "node scripts/shots.mjs",
+    "music": "python scripts/analyze_music.py",
+    "fonts": "node scripts/fetch-fonts.mjs"
+  },
+  "dependencies": {
+    "@react-three/fiber": "9.8.1",
+    "@remotion/bundler": "4.0.410",
+    "@remotion/fonts": "4.0.410",
+    "@remotion/google-fonts": "4.0.410",
+    "@remotion/layout-utils": "4.0.410",
+    "@remotion/media-utils": "4.0.410",
+    "@remotion/motion-blur": "4.0.410",
+    "@remotion/noise": "4.0.410",
+    "@remotion/paths": "4.0.410",
+    "@remotion/renderer": "4.0.410",
+    "@remotion/shapes": "4.0.410",
+    "@remotion/three": "4.0.410",
+    "@remotion/transitions": "4.0.410",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "remotion": "4.0.410",
+    "three": "0.170.0",
+    "zod": "3.22.3"
+  },
+  "devDependencies": {
+    "@remotion/cli": "4.0.410",
+    "@types/react": "19.0.0",
+    "@types/three": "0.170.0",
+    "typescript": "5.6.3"
+  }
+}

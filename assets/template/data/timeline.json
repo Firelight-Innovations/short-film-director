@@ -1,0 +1,137 @@
+{
+  "version": 3,
+  "title": "__TITLE__",
+  "slug": "__SLUG__",
+  "w": 1920,
+  "h": 1080,
+  "fps": 30,
+  "dur": 20.0,
+  "letterbox": 0.06,
+  "safe": { "title": 0.9, "action": 0.95 },
+  "audio": null,
+  "sections": [
+    {
+      "id": "00-open",
+      "from": 0.0,
+      "to": 7.0,
+      "label": "Open",
+      "style": "Warm dark field, one drifting ember, type set in the centre",
+      "palette": { "bg": "#16120f", "ink": "#f2ece0", "accent": "#ff6a2b", "accent2": "#7a5a3c", "shadow": "#070504" }
+    },
+    {
+      "id": "01-turn",
+      "from": 7.0,
+      "to": 14.0,
+      "label": "Turn",
+      "style": "Cold blue field; one number held large",
+      "palette": { "bg": "#0b1626", "ink": "#e4edf7", "accent": "#6fd3ff", "accent2": "#2b4a6b", "shadow": "#02060c" }
+    },
+    {
+      "id": "02-close",
+      "from": 14.0,
+      "to": 20.0,
+      "label": "Close",
+      "style": "Graphite, bone type, then a hard cut to black",
+      "palette": { "bg": "#141414", "ink": "#ece6da", "accent": "#e8873a", "accent2": "#6b665e", "shadow": "#000000" }
+    }
+  ],
+  "marks": {
+    "hit-1": 2.8,
+    "turn": 7.0,
+    "lift": 11.0,
+    "close": 14.0,
+    "black": 19.5
+  },
+  "transitions": [
+    {
+      "id": "t-00-01",
+      "at": 7.0,
+      "a": "00-open",
+      "b": "01-turn",
+      "owner": "00-open",
+      "pre": 0.5,
+      "post": 0.5,
+      "name": "Iris",
+      "device": "A circle opens from the centre on 01-turn's live picture, edged by a thin ember ring; 00-open keeps drifting behind it. The circle covers the frame before the window ends.",
+      "beat": "turn"
+    },
+    {
+      "id": "t-01-02",
+      "at": 14.0,
+      "a": "01-turn",
+      "b": "02-close",
+      "owner": "02-close",
+      "pre": 0.4,
+      "post": 0.4,
+      "name": "Wipe up",
+      "device": "02-close rises from the bottom edge over 01-turn's live picture, a hard horizontal edge, no feather.",
+      "beat": "close"
+    }
+  ],
+  "cues": [
+    {
+      "id": "stamp-1",
+      "section": "00-open",
+      "role": "stamp",
+      "from": 0.5,
+      "to": 2.6,
+      "text": "DEMO REEL",
+      "note": "A small label inside the picture, top left."
+    },
+    {
+      "id": "narration-1",
+      "section": "00-open",
+      "role": "narration",
+      "from": 2.8,
+      "to": 6.4,
+      "text": "Every frame is a function of time.",
+      "note": "Whole on its first frame: the entrance starts a few frames early."
+    },
+    {
+      "id": "narration-2",
+      "section": "01-turn",
+      "role": "narration",
+      "from": 7.6,
+      "to": 10.6,
+      "text": "The timeline holds every word."
+    },
+    {
+      "id": "data-1",
+      "section": "01-turn",
+      "role": "data",
+      "from": 11.0,
+      "to": 13.5,
+      "text": "30",
+      "attribution": "frames a second",
+      "source": "data/timeline.json, field fps"
+    },
+    {
+      "id": "question-1",
+      "section": "02-close",
+      "role": "question",
+      "from": 14.6,
+      "to": 17.4,
+      "text": "What will you make?"
+    },
+    {
+      "id": "credit-1",
+      "section": "02-close",
+      "role": "credit",
+      "from": 17.6,
+      "to": 19.4,
+      "text": "Made in code"
+    }
+  ],
+  "checks": {
+    "black": [[19.5, 20.0]],
+    "lastFrameBlack": true
+  },
+  "grade": {
+    "contrast": 1.05,
+    "saturation": 0.97,
+    "gamma": 0.985,
+    "vignette": 0.35,
+    "grain": 5,
+    "until": 19.5
+  }
+}

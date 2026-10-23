@@ -1,0 +1,15 @@
+{
+  "audio": null,
+  "fps": 30,
+  "duration": 0,
+  "bpm": 0,
+  "beat_period": 0,
+  "beats": [],
+  "downbeats": [],
+  "onsets": [],
+  "hits": [],
+  "structure": [],
+  "loudest": null,
+  "silence_from": null,
+  "frames": { "energy": [], "low": [], "mid": [], "high": [], "onset": [] }
+}

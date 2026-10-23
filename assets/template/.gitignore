@@ -1,0 +1,11 @@
+node_modules/
+out/
+work/
+.remotion/
+__pycache__/
+*.pyc
+*.log
+.DS_Store
+# The track: commit it only if its licence allows redistribution.
+assets/audio/*
+!assets/audio/.gitkeep

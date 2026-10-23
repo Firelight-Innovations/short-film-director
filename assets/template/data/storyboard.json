@@ -1,0 +1,112 @@
+{
+  "panels": [
+    {
+      "id": "p01",
+      "section": "00-open",
+      "at": 0.0,
+      "image": null,
+      "action": "Dark warm field. A small ember drifts in from the left; a small label sets in the corner.",
+      "camera": "locked off",
+      "words": ["stamp-1"],
+      "sound": "silence (the demo has no track)",
+      "refs": [],
+      "note": ""
+    },
+    {
+      "id": "p02",
+      "section": "00-open",
+      "at": 2.8,
+      "image": null,
+      "action": "The line sets in the centre, whole on its first frame. The ember swells on the hit.",
+      "camera": "slow push in",
+      "words": ["narration-1"],
+      "sound": "mark hit-1",
+      "refs": [],
+      "note": ""
+    },
+    {
+      "id": "p03",
+      "section": "00-open",
+      "at": 6.5,
+      "image": null,
+      "action": "Iris: a circle opens from the centre on the blue of 01-turn, edged by a thin ember ring.",
+      "camera": "locked off",
+      "words": [],
+      "sound": "mark turn",
+      "refs": [],
+      "note": "Transition t-00-01, owned by 00-open."
+    },
+    {
+      "id": "p04",
+      "section": "01-turn",
+      "at": 7.6,
+      "image": null,
+      "action": "Cold blue field. The sentence sits low and left.",
+      "camera": "slow drift right",
+      "words": ["narration-2"],
+      "sound": "",
+      "refs": [],
+      "note": ""
+    },
+    {
+      "id": "p05",
+      "section": "01-turn",
+      "at": 11.0,
+      "image": null,
+      "action": "The number held large, its label under it, the source small at the bottom.",
+      "camera": "locked off",
+      "words": ["data-1"],
+      "sound": "mark lift",
+      "refs": [],
+      "note": ""
+    },
+    {
+      "id": "p06",
+      "section": "02-close",
+      "at": 13.6,
+      "image": null,
+      "action": "Wipe up: graphite rises from the bottom edge over the blue, a hard edge.",
+      "camera": "locked off",
+      "words": [],
+      "sound": "mark close",
+      "refs": [],
+      "note": "Transition t-01-02, owned by 02-close."
+    },
+    {
+      "id": "p07",
+      "section": "02-close",
+      "at": 14.6,
+      "image": null,
+      "action": "Graphite field, bone type, the question centred.",
+      "camera": "locked off",
+      "words": ["question-1"],
+      "sound": "",
+      "refs": [],
+      "note": ""
+    },
+    {
+      "id": "p08",
+      "section": "02-close",
+      "at": 17.6,
+      "image": null,
+      "action": "A small credit, letterspaced, low in frame.",
+      "camera": "locked off",
+      "words": ["credit-1"],
+      "sound": "",
+      "refs": [],
+      "note": ""
+    },
+    {
+      "id": "p09",
+      "section": "02-close",
+      "at": 19.5,
+      "image": null,
+      "action": "Hard cut to black. Black holds to the last frame.",
+      "camera": "",
+      "words": [],
+      "sound": "mark black",
+      "refs": [],
+      "note": "checks.black"
+    }
+  ]
+}

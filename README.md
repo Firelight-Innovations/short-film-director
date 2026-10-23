@@ -20,8 +20,24 @@ other picture is drawn by code.
 
 *Link coming soon.* 2:00, 16:9, music only.
 
-<!-- DEMO FILM: when there is a short demo film made with the skill, link it here, e.g.
-     [Watch the 15-second demo](URL) -->
+## Demo: *How to Juggle*
+
+![A safety-card illustration teaches juggling in three panels; at step three the figure plucks the printed 3 off the card and juggles the card to pieces, then everything snaps back and the 3 lands on its head](media/demo-how-to-juggle.gif)
+
+<!-- DEMO VIDEO LINK: put the full video's URL on the [demo-video] line at the bottom of
+     this file, then delete the "Full video coming soon" line below. -->
+**[Watch the full video, with sound][demo-video]**
+
+*Full video coming soon.*
+
+The skill's 15-second test film, made by the skill end to end in one run: a deadpan
+airline-style safety card teaches juggling in three panels. At step three the figure has
+no third ball, so it plucks the printed 3 off the card and juggles the card to pieces;
+then everything snaps back, and the 3 lands on its head. It is cut to an excerpt of
+"Entrance of the Gladiators" (Julius Fučík, 1897), in a US Marine Band recording that
+Wikimedia Commons lists as public domain. The run took 2 h 05 min, with the lead and 9
+sub-agents. The film passes the flash-safety screen and the black and letterbox checks.
+The GIF is a silent version at 480 px and 20 fps.
 
 ## What it does
 
@@ -189,10 +205,14 @@ media/            the images on this page
 
 ## Where it comes from
 
-Built from the pipeline that made *We Built a Mind* (Firelight Innovations, 2026). The
-film's track is not in this repo, and neither is any of its footage: the images above are
-stills from the finished film.
+Built from the pipeline that made *We Built a Mind* (Firelight Innovations, 2026). That
+film's track is not in this repo, and neither is any of its footage: the *We Built a
+Mind* images above are stills, charts and storyboard frames. The demo GIF is a silent,
+small version of the skill's test film.
 
 <!-- VIDEO LINK: replace the target below with the video's URL,
      e.g. https://www.youtube.com/watch?v=XXXXXXXXXXX -->
 [wbam-video]: #watch-we-built-a-mind
+
+<!-- DEMO VIDEO LINK: replace the target below with the full demo video's URL -->
+[demo-video]: #demo-how-to-juggle
